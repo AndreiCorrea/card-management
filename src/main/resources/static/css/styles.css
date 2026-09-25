@@ -589,23 +589,8 @@ h1 {
 
 .card-table th:first-child,
 .card-table td:first-child {
-    width: 58px;
-    padding-left: 14px;
-    text-align: center;
-}
-
-.card-table th:nth-child(2),
-.card-table td:nth-child(2) {
     width: 102px;
-    padding-left: 14px;
-}
-
-.card-select input {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    accent-color: var(--warm-metal);
-    cursor: pointer;
+    padding-left: 20px;
 }
 
 .card-table th:last-child,
@@ -635,6 +620,24 @@ h1 {
     box-shadow: inset 0 1px rgba(208, 190, 148, 0.05), inset 0 -1px rgba(208, 190, 148, 0.035);
 }
 
+.card-table tbody tr {
+    cursor: pointer;
+}
+
+.card-table tbody tr:focus-visible {
+    outline: 2px solid var(--warm-metal);
+    outline-offset: -2px;
+}
+
+.card-table tbody tr.is-selected td {
+    background-color: rgba(148, 124, 81, 0.22);
+    box-shadow: inset 0 1px rgba(208, 190, 148, 0.1), inset 0 -1px rgba(208, 190, 148, 0.08);
+}
+
+.card-table tbody tr.is-selected td:first-child {
+    box-shadow: inset 3px 0 var(--warm-metal), inset 0 1px rgba(208, 190, 148, 0.1), inset 0 -1px rgba(208, 190, 148, 0.08);
+}
+
 .card-table .card-id,
 .card-table .card-cost {
     color: #b4a579;
@@ -647,7 +650,7 @@ h1 {
     color: #958c78;
 }
 
-.card-table td:nth-child(3) {
+.card-table td:nth-child(2) {
     color: #e3d8c2;
     font-size: 1.26rem;
     font-weight: 600;
@@ -796,14 +799,8 @@ h1 {
 
     .card-table th:first-child,
     .card-table td:first-child {
-        width: 45px;
+        width: 54px;
         padding-left: 9px;
-    }
-
-    .card-table th:nth-child(2),
-    .card-table td:nth-child(2) {
-        width: 53px;
-        padding-left: 7px;
     }
 
     .card-table th:last-child,
@@ -812,7 +809,7 @@ h1 {
         padding-right: 9px;
     }
 
-    .card-table td:nth-child(3) {
+    .card-table td:nth-child(2) {
         font-size: 1.12rem;
     }
 

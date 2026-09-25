@@ -8,6 +8,9 @@ const createFormErrors = document.querySelector("#create-form-errors");
 const createErrorList = document.querySelector("#create-error-list");
 const imageFileInput = document.querySelector("#image-file");
 const selectedImageName = document.querySelector("#selected-image-name");
+const editCardButton = document.querySelector("#edit-card-button");
+const createTitle = document.querySelector("#create-title");
+const createDescription = document.querySelector("#create-description");
 const viewCardButton = document.querySelector("#view-card-button");
 const cardDetailPanel = document.querySelector("#card-detail-panel");
 const closeCardDetailButton = document.querySelector("#close-card-detail");
@@ -16,8 +19,13 @@ const cardDetailError = document.querySelector("#card-detail-error");
 const cardDetailFields = document.querySelector("#card-detail-fields");
 
 let selectedCardId = null;
+let editingCardId = null;
+let editingImageReference = null;
+let formReturnButton = showCreateFormButton;
 
 showCreateFormButton.addEventListener("click", () => {
+    resetFormMode();
+    formReturnButton = showCreateFormButton;
     createPanel.hidden = false;
     showCreateFormButton.setAttribute("aria-expanded", "true");
     createForm.elements.name.focus();
@@ -25,12 +33,13 @@ showCreateFormButton.addEventListener("click", () => {
 
 closeCreateFormButton.addEventListener("click", () => {
     hideCreateForm();
-    showCreateFormButton.focus();
+    formReturnButton.focus();
 });
 
 createForm.addEventListener("submit", submitCreateForm);
 imageFileInput.addEventListener("change", updateSelectedImageName);
 viewCardButton.addEventListener("click", loadSelectedCard);
+editCardButton.addEventListener("click", loadSelectedCardForEdit);
 closeCardDetailButton.addEventListener("click", closeCardDetails);
 
 function showStatus(message, state = "") {
@@ -41,24 +50,20 @@ function showStatus(message, state = "") {
 function renderCards(cards) {
     selectedCardId = null;
     viewCardButton.disabled = true;
+    editCardButton.disabled = true;
     cardList.replaceChildren();
 
     for (const card of cards) {
         const row = document.createElement("tr");
-
-        const selectionCell = document.createElement("td");
-        selectionCell.className = "card-select";
-        const selector = document.createElement("input");
-        selector.type = "radio";
-        selector.name = "selected-card";
-        selector.value = String(card.id);
-        selector.setAttribute("aria-label", `Select card ${card.name}`);
-        selector.addEventListener("change", () => {
-            selectedCardId = card.id;
-            viewCardButton.disabled = false;
+        row.tabIndex = 0;
+        row.setAttribute("aria-selected", "false");
+        row.addEventListener("click", () => selectCardRow(row, card));
+        row.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                selectCardRow(row, card);
+            }
         });
-        selectionCell.append(selector);
-        row.append(selectionCell);
 
         appendCell(row, card.id, "card-id");
         appendCell(row, card.name);
@@ -67,6 +72,75 @@ function renderCards(cards) {
 
         cardList.append(row);
     }
+}
+
+function selectCardRow(row, card) {
+    for (const otherRow of cardList.rows) {
+        const isSelected = otherRow === row;
+        otherRow.classList.toggle("is-selected", isSelected);
+        otherRow.setAttribute("aria-selected", String(isSelected));
+    }
+    selectedCardId = card.id;
+    viewCardButton.disabled = false;
+    editCardButton.disabled = false;
+}
+
+async function loadSelectedCardForEdit() {
+    if (selectedCardId === null || selectedCardId === undefined) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/cards/${encodeURIComponent(selectedCardId)}`, {
+            headers: { Accept: "application/json" }
+        });
+
+        if (response.status === 404) {
+            showStatus("This card is no longer available. Refresh the list and try again.", "error");
+            return;
+        }
+
+        if (!response.ok) {
+            showStatus("Unable to load this card for editing. Please try again later.", "error");
+            return;
+        }
+
+        const card = await response.json();
+        prepareEditForm(card);
+    } catch {
+        showStatus("Unable to load this card for editing. Please try again later.", "error");
+    }
+}
+
+function prepareEditForm(card) {
+    resetFormMode();
+    editingCardId = card.id;
+    editingImageReference = card.image ?? null;
+    formReturnButton = editCardButton;
+
+    const form = createForm.elements;
+    form.name.value = card.name ?? "";
+    form.description.value = card.description ?? "";
+    form.type.value = card.type ?? "";
+    form.cost.value = card.cost ?? "";
+    form.attack.value = card.attack ?? "";
+    form.defense.value = card.defense ?? "";
+    form.piercing.value = card.piercing ?? "";
+    form.durability.value = card.durability ?? "";
+    form.twoHanded.checked = Boolean(card.twoHanded);
+    form.magicDamage.value = card.magicDamage ?? "";
+    form.magicResistance.value = card.magicResistance ?? "";
+    form.shieldType.value = card.shieldType ?? "";
+    form.parryBonus.value = card.parryBonus ?? "";
+    updateSelectedImageName();
+
+    createTitle.textContent = "Edit Card";
+    createDescription.textContent = "Update the details for this card.";
+    createPanel.hidden = false;
+    clearCreateErrors();
+    cardDetailPanel.hidden = true;
+    createPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    form.name.focus();
 }
 
 async function loadSelectedCard() {
@@ -145,8 +219,8 @@ function closeCardDetails() {
     cardDetailStatus.hidden = true;
     cardDetailError.hidden = true;
     cardDetailFields.hidden = true;
-    const selectedRadio = cardList.querySelector('input[name="selected-card"]:checked');
-    (selectedRadio || viewCardButton).focus();
+    const selectedRow = cardList.querySelector("tr.is-selected");
+    (selectedRow || viewCardButton).focus();
 }
 
 function appendCell(row, value, className = "") {
@@ -185,6 +259,7 @@ async function loadCards() {
         cardList.replaceChildren();
         selectedCardId = null;
         viewCardButton.disabled = true;
+        editCardButton.disabled = true;
         showStatus("Unable to load cards. Please try again later.", "error");
     }
 }
@@ -212,12 +287,17 @@ async function submitCreateForm(event) {
         magicResistance: optionalNumber(form.magicResistance.value),
         shieldType: form.shieldType.value || null,
         parryBonus: optionalNumber(form.parryBonus.value),
-        image: form.image.files[0]?.name || null
+        image: imageFileInput.files[0]?.name || editingImageReference
     };
 
+    const isEditing = editingCardId !== null;
+    const endpoint = isEditing
+        ? `/api/cards/${encodeURIComponent(editingCardId)}`
+        : "/api/cards";
+
     try {
-        const response = await fetch("/api/cards", {
-            method: "POST",
+        const response = await fetch(endpoint, {
+            method: isEditing ? "PUT" : "POST",
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json"
@@ -230,16 +310,31 @@ async function submitCreateForm(event) {
             return;
         }
 
-        if (response.status !== 201) {
-            showCreateErrors({ message: "Unable to create the card. Please try again." });
+        if (isEditing && response.status === 404) {
+            showCreateErrors({ message: "This card is no longer available. Refresh the list and try again." });
             return;
         }
 
+        const expectedStatus = isEditing ? 200 : 201;
+        if (response.status !== expectedStatus) {
+            showCreateErrors({
+                message: isEditing
+                    ? "Unable to update the card. Please try again."
+                    : "Unable to create the card. Please try again."
+            });
+            return;
+        }
+
+        const returnButton = isEditing ? showCreateFormButton : formReturnButton;
         hideCreateForm();
-        showCreateFormButton.focus();
+        returnButton.focus();
         await loadCards();
     } catch {
-        showCreateErrors({ message: "Unable to reach the server. Please try again later." });
+        showCreateErrors({
+            message: isEditing
+                ? "Unable to reach the server while updating. Please try again later."
+                : "Unable to reach the server. Please try again later."
+        });
     }
 }
 
@@ -248,7 +343,11 @@ function optionalNumber(value) {
 }
 
 function updateSelectedImageName() {
-    selectedImageName.textContent = imageFileInput.files[0]?.name || "No image selected";
+    const selectedFileName = imageFileInput.files[0]?.name;
+    if (selectedFileName) {
+        editingImageReference = selectedFileName;
+    }
+    selectedImageName.textContent = selectedFileName || editingImageReference || "No image selected";
 }
 
 async function readErrorResponse(response) {
@@ -291,11 +390,19 @@ function clearCreateErrors() {
 }
 
 function hideCreateForm() {
-    createForm.reset();
-    updateSelectedImageName();
-    clearCreateErrors();
+    resetFormMode();
     createPanel.hidden = true;
     showCreateFormButton.setAttribute("aria-expanded", "false");
+}
+
+function resetFormMode() {
+    createForm.reset();
+    editingCardId = null;
+    editingImageReference = null;
+    createTitle.textContent = "Create a Card";
+    createDescription.textContent = "Enter the card details for the archive.";
+    updateSelectedImageName();
+    clearCreateErrors();
 }
 
 loadCards();

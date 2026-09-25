@@ -24,7 +24,7 @@
                 <button id="show-create-form" class="action-button" type="button" aria-controls="create-panel" aria-expanded="false">
                     <span class="action-glyph" aria-hidden="true">＋</span>Add
                 </button>
-                <button class="action-button" type="button" disabled title="Available in a later increment">
+                <button id="edit-card-button" class="action-button" type="button" disabled aria-controls="create-panel">
                     <span class="action-glyph" aria-hidden="true">✎</span>Edit
                 </button>
                 <button id="view-card-button" class="action-button" type="button" disabled aria-controls="card-detail-panel">
@@ -34,14 +34,14 @@
                     <span class="action-glyph" aria-hidden="true">×</span>Delete
                 </button>
             </div>
-            <p class="action-note">Edit and Delete will be available in subsequent increments.</p>
+            <p class="action-note">Delete will be available in a subsequent increment.</p>
         </section>
 
         <section id="create-panel" class="create-panel" aria-labelledby="create-title" hidden>
             <div class="create-heading">
                 <div>
                     <h2 id="create-title">Create a Card</h2>
-                    <p>Enter the card details for the archive.</p>
+                    <p id="create-description">Enter the card details for the archive.</p>
                 </div>
             </div>
 
@@ -141,9 +141,7 @@
 
                 <div class="form-actions">
                     <button id="close-create-form" class="action-button form-submit" type="button">Cancel</button>
-                    <button class="action-button form-submit" type="submit">
-                        Save
-                    </button>
+                    <button id="save-card-button" class="action-button form-submit" type="submit">Save</button>
                 </div>
             </form>
         </section>
@@ -189,7 +187,6 @@
                     <caption class="visually-hidden">Cards in the archive</caption>
                     <thead>
                     <tr>
-                        <th scope="col" class="select-column">Select</th>
                         <th scope="col">ID</th>
                         <th scope="col">Name</th>
                         <th scope="col">Type</th>
