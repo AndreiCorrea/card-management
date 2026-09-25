@@ -3,13 +3,13 @@ package com.andreicorrealemos.card_management.card.service;
 import com.andreicorrealemos.card_management.card.dto.CardResponse;
 import com.andreicorrealemos.card_management.card.dto.CreateCardRequest;
 import com.andreicorrealemos.card_management.card.dto.UpdateCardRequest;
+import com.andreicorrealemos.card_management.card.exception.CardNotFoundException;
 import com.andreicorrealemos.card_management.card.model.Card;
 import com.andreicorrealemos.card_management.card.repository.CardRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class CardService {
@@ -46,15 +46,18 @@ public class CardService {
                 .toList();
     }
 
-    public Optional<CardResponse> findById(Long id) {
-        return Optional.ofNullable(cardRepository.findById(id))
-                .map(this::toResponse);
+    public CardResponse findById(Long id) {
+        Card card = cardRepository.findById(id);
+        if (card == null) {
+            throw new CardNotFoundException(id);
+        }
+        return toResponse(card);
     }
 
-    public Optional<CardResponse> update(Long id, UpdateCardRequest request) {
+    public CardResponse update(Long id, UpdateCardRequest request) {
         Card existingCard = cardRepository.findById(id);
         if (existingCard == null) {
-            return Optional.empty();
+            throw new CardNotFoundException(id);
         }
 
         existingCard.setName(request.name());
@@ -72,16 +75,15 @@ public class CardService {
         existingCard.setParryBonus(request.parryBonus());
         existingCard.setImage(request.image());
 
-        return Optional.of(toResponse(cardRepository.save(existingCard)));
+        return toResponse(cardRepository.save(existingCard));
     }
 
-    public boolean delete(Long id) {
+    public void delete(Long id) {
         if (cardRepository.findById(id) == null) {
-            return false;
+            throw new CardNotFoundException(id);
         }
 
         cardRepository.deleteById(id);
-        return true;
     }
 
     private CardResponse toResponse(Card card) {

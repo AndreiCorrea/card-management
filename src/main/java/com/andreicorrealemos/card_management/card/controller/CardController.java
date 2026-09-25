@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/cards")
@@ -42,8 +41,7 @@ public class CardController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CardResponse> findById(@PathVariable Long id) {
-        Optional<CardResponse> response = cardService.findById(id);
-        return ResponseEntity.of(response);
+        return ResponseEntity.ok(cardService.findById(id));
     }
 
     @PutMapping("/{id}")
@@ -51,14 +49,12 @@ public class CardController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateCardRequest request
     ) {
-        return ResponseEntity.of(cardService.update(id, request));
+        return ResponseEntity.ok(cardService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        if (!cardService.delete(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        cardService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
