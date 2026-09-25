@@ -211,17 +211,6 @@ h1 {
     line-height: 1;
 }
 
-.action-button-danger {
-    border-color: rgba(145, 83, 73, 0.18);
-    background: linear-gradient(180deg, #3c3635 0%, #322e2d 48%, #292726 100%);
-    color: #b3a5a0;
-    opacity: 0.58;
-}
-
-.action-button-danger .action-glyph {
-    color: #94564e;
-}
-
 .action-note {
     grid-column: 2;
     grid-row: 2;
@@ -429,6 +418,17 @@ h1 {
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
+}
+
+.delete-confirmation-copy {
+    margin: 0;
+    color: #d0c8b9;
+    font-size: 1.08rem;
+}
+
+.delete-confirmation-copy strong {
+    color: #e1c5a5;
+    overflow-wrap: anywhere;
 }
 
 .form-submit {

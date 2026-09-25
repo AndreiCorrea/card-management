@@ -30,11 +30,11 @@
                 <button id="view-card-button" class="action-button" type="button" disabled aria-controls="card-detail-panel">
                     <span class="action-glyph" aria-hidden="true">⌕</span>View
                 </button>
-                <button class="action-button action-button-danger" type="button" disabled title="Available in a later increment">
+                <button id="delete-card-button" class="action-button" type="button" disabled aria-controls="delete-confirmation-panel">
                     <span class="action-glyph" aria-hidden="true">×</span>Delete
                 </button>
             </div>
-            <p class="action-note">Delete will be available in a subsequent increment.</p>
+            <p class="action-note">Select a card to view, edit, or delete it.</p>
         </section>
 
         <section id="create-panel" class="create-panel" aria-labelledby="create-title" hidden>
@@ -144,6 +144,21 @@
                     <button id="save-card-button" class="action-button form-submit" type="submit">Save</button>
                 </div>
             </form>
+        </section>
+
+        <section id="delete-confirmation-panel" class="create-panel delete-confirmation-panel" aria-labelledby="delete-confirmation-title" hidden>
+            <div class="create-heading">
+                <div>
+                    <h2 id="delete-confirmation-title">Delete Card</h2>
+                    <p>Confirm that you want to permanently delete this card.</p>
+                </div>
+            </div>
+            <p class="delete-confirmation-copy">Card: <strong id="delete-confirmation-name"></strong></p>
+            <p id="delete-confirmation-error" class="form-errors" role="alert" hidden></p>
+            <div class="form-actions">
+                <button id="cancel-delete-card" class="action-button form-submit" type="button">Cancel</button>
+                <button id="confirm-delete-card" class="action-button form-submit" type="button">Delete</button>
+            </div>
         </section>
 
         <section id="card-detail-panel" class="create-panel card-detail-panel" aria-labelledby="card-detail-title" hidden>
