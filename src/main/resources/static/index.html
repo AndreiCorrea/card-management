@@ -27,14 +27,14 @@
                 <button class="action-button" type="button" disabled title="Available in a later increment">
                     <span class="action-glyph" aria-hidden="true">✎</span>Edit
                 </button>
-                <button class="action-button" type="button" disabled title="Available in a later increment">
+                <button id="view-card-button" class="action-button" type="button" disabled aria-controls="card-detail-panel">
                     <span class="action-glyph" aria-hidden="true">⌕</span>View
                 </button>
                 <button class="action-button action-button-danger" type="button" disabled title="Available in a later increment">
                     <span class="action-glyph" aria-hidden="true">×</span>Delete
                 </button>
             </div>
-            <p class="action-note">Edit, View, and Delete will be available in subsequent increments.</p>
+            <p class="action-note">Edit and Delete will be available in subsequent increments.</p>
         </section>
 
         <section id="create-panel" class="create-panel" aria-labelledby="create-title" hidden>
@@ -148,6 +148,35 @@
             </form>
         </section>
 
+        <section id="card-detail-panel" class="create-panel card-detail-panel" aria-labelledby="card-detail-title" hidden>
+            <div class="create-heading">
+                <div>
+                    <h2 id="card-detail-title">Card Details</h2>
+                    <p>Read-only card information.</p>
+                </div>
+                <button id="close-card-detail" class="action-button form-submit" type="button">Close</button>
+            </div>
+            <p id="card-detail-status" class="list-status" role="status" aria-live="polite" hidden></p>
+            <p id="card-detail-error" class="form-errors" role="alert" hidden></p>
+            <dl id="card-detail-fields" class="card-detail-fields" hidden>
+                <div><dt>ID</dt><dd id="detail-id"></dd></div>
+                <div><dt>Name</dt><dd id="detail-name"></dd></div>
+                <div class="detail-wide"><dt>Description</dt><dd id="detail-description"></dd></div>
+                <div><dt>Type</dt><dd id="detail-type"></dd></div>
+                <div><dt>Cost</dt><dd id="detail-cost"></dd></div>
+                <div><dt>Attack</dt><dd id="detail-attack"></dd></div>
+                <div><dt>Defense</dt><dd id="detail-defense"></dd></div>
+                <div><dt>Piercing</dt><dd id="detail-piercing"></dd></div>
+                <div><dt>Durability</dt><dd id="detail-durability"></dd></div>
+                <div><dt>Two-handed</dt><dd id="detail-two-handed"></dd></div>
+                <div><dt>Magic Damage</dt><dd id="detail-magic-damage"></dd></div>
+                <div><dt>Magic Resistance</dt><dd id="detail-magic-resistance"></dd></div>
+                <div><dt>Shield Type</dt><dd id="detail-shield-type"></dd></div>
+                <div><dt>Parry Bonus</dt><dd id="detail-parry-bonus"></dd></div>
+                <div class="detail-wide"><dt>Image</dt><dd id="detail-image"></dd></div>
+            </dl>
+        </section>
+
         <section class="archive-panel" aria-labelledby="archive-title">
             <div class="archive-heading">
                 <div class="section-heading">
@@ -160,6 +189,7 @@
                     <caption class="visually-hidden">Cards in the archive</caption>
                     <thead>
                     <tr>
+                        <th scope="col" class="select-column">Select</th>
                         <th scope="col">ID</th>
                         <th scope="col">Name</th>
                         <th scope="col">Type</th>

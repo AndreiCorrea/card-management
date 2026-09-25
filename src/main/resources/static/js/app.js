@@ -8,6 +8,14 @@ const createFormErrors = document.querySelector("#create-form-errors");
 const createErrorList = document.querySelector("#create-error-list");
 const imageFileInput = document.querySelector("#image-file");
 const selectedImageName = document.querySelector("#selected-image-name");
+const viewCardButton = document.querySelector("#view-card-button");
+const cardDetailPanel = document.querySelector("#card-detail-panel");
+const closeCardDetailButton = document.querySelector("#close-card-detail");
+const cardDetailStatus = document.querySelector("#card-detail-status");
+const cardDetailError = document.querySelector("#card-detail-error");
+const cardDetailFields = document.querySelector("#card-detail-fields");
+
+let selectedCardId = null;
 
 showCreateFormButton.addEventListener("click", () => {
     createPanel.hidden = false;
@@ -22,6 +30,8 @@ closeCreateFormButton.addEventListener("click", () => {
 
 createForm.addEventListener("submit", submitCreateForm);
 imageFileInput.addEventListener("change", updateSelectedImageName);
+viewCardButton.addEventListener("click", loadSelectedCard);
+closeCardDetailButton.addEventListener("click", closeCardDetails);
 
 function showStatus(message, state = "") {
     listStatus.textContent = message;
@@ -29,10 +39,26 @@ function showStatus(message, state = "") {
 }
 
 function renderCards(cards) {
+    selectedCardId = null;
+    viewCardButton.disabled = true;
     cardList.replaceChildren();
 
     for (const card of cards) {
         const row = document.createElement("tr");
+
+        const selectionCell = document.createElement("td");
+        selectionCell.className = "card-select";
+        const selector = document.createElement("input");
+        selector.type = "radio";
+        selector.name = "selected-card";
+        selector.value = String(card.id);
+        selector.setAttribute("aria-label", `Select card ${card.name}`);
+        selector.addEventListener("change", () => {
+            selectedCardId = card.id;
+            viewCardButton.disabled = false;
+        });
+        selectionCell.append(selector);
+        row.append(selectionCell);
 
         appendCell(row, card.id, "card-id");
         appendCell(row, card.name);
@@ -41,6 +67,86 @@ function renderCards(cards) {
 
         cardList.append(row);
     }
+}
+
+async function loadSelectedCard() {
+    if (selectedCardId === null || selectedCardId === undefined) {
+        return;
+    }
+
+    cardDetailPanel.hidden = false;
+    cardDetailFields.hidden = true;
+    cardDetailError.hidden = true;
+    cardDetailStatus.hidden = false;
+    cardDetailStatus.className = "list-status";
+    cardDetailStatus.textContent = "Loading card details…";
+    cardDetailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    try {
+        const response = await fetch(`/api/cards/${encodeURIComponent(selectedCardId)}`, {
+            headers: { Accept: "application/json" }
+        });
+
+        if (response.status === 404) {
+            showCardDetailError("This card is no longer available. Refresh the list and try again.");
+            return;
+        }
+
+        if (!response.ok) {
+            showCardDetailError("Unable to load card details. Please try again later.");
+            return;
+        }
+
+        const card = await response.json();
+        renderCardDetails(card);
+        cardDetailStatus.hidden = true;
+    } catch {
+        showCardDetailError("Unable to load card details. Please try again later.");
+    }
+}
+
+function renderCardDetails(card) {
+    const values = {
+        "detail-id": card.id,
+        "detail-name": card.name,
+        "detail-description": card.description,
+        "detail-type": card.type,
+        "detail-cost": card.cost,
+        "detail-attack": optionalDisplayValue(card.attack),
+        "detail-defense": optionalDisplayValue(card.defense),
+        "detail-piercing": optionalDisplayValue(card.piercing),
+        "detail-durability": optionalDisplayValue(card.durability),
+        "detail-two-handed": card.twoHanded ? "Yes" : "No",
+        "detail-magic-damage": optionalDisplayValue(card.magicDamage),
+        "detail-magic-resistance": optionalDisplayValue(card.magicResistance),
+        "detail-shield-type": optionalDisplayValue(card.shieldType),
+        "detail-parry-bonus": optionalDisplayValue(card.parryBonus),
+        "detail-image": optionalDisplayValue(card.image)
+    };
+
+    for (const [id, value] of Object.entries(values)) {
+        document.getElementById(id).textContent = value;
+    }
+    cardDetailFields.hidden = false;
+}
+
+function optionalDisplayValue(value) {
+    return value === null || value === undefined ? "Not set" : String(value);
+}
+
+function showCardDetailError(message) {
+    cardDetailStatus.hidden = true;
+    cardDetailError.textContent = message;
+    cardDetailError.hidden = false;
+}
+
+function closeCardDetails() {
+    cardDetailPanel.hidden = true;
+    cardDetailStatus.hidden = true;
+    cardDetailError.hidden = true;
+    cardDetailFields.hidden = true;
+    const selectedRadio = cardList.querySelector('input[name="selected-card"]:checked');
+    (selectedRadio || viewCardButton).focus();
 }
 
 function appendCell(row, value, className = "") {
@@ -77,6 +183,8 @@ async function loadCards() {
         }
     } catch {
         cardList.replaceChildren();
+        selectedCardId = null;
+        viewCardButton.disabled = true;
         showStatus("Unable to load cards. Please try again later.", "error");
     }
 }

@@ -589,8 +589,23 @@ h1 {
 
 .card-table th:first-child,
 .card-table td:first-child {
+    width: 58px;
+    padding-left: 14px;
+    text-align: center;
+}
+
+.card-table th:nth-child(2),
+.card-table td:nth-child(2) {
     width: 102px;
-    padding-left: 20px;
+    padding-left: 14px;
+}
+
+.card-select input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--warm-metal);
+    cursor: pointer;
 }
 
 .card-table th:last-child,
@@ -632,7 +647,7 @@ h1 {
     color: #958c78;
 }
 
-.card-table td:nth-child(2) {
+.card-table td:nth-child(3) {
     color: #e3d8c2;
     font-size: 1.26rem;
     font-weight: 600;
@@ -642,6 +657,37 @@ h1 {
     color: #a9a699;
     font-family: var(--technical);
     font-size: 0.68rem;
+}
+
+.card-detail-fields {
+    display: grid;
+    margin: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 22px;
+}
+
+.card-detail-fields > div {
+    min-width: 0;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--rule);
+}
+
+.card-detail-fields .detail-wide {
+    grid-column: 1 / -1;
+}
+
+.card-detail-fields dt {
+    color: #b8aa88;
+    font-family: var(--display);
+    font-size: 0.72rem;
+}
+
+.card-detail-fields dd {
+    margin: 4px 0 0;
+    color: #ded6c6;
+    font-size: 1.06rem;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
 }
 
 .page-footer {
@@ -750,8 +796,14 @@ h1 {
 
     .card-table th:first-child,
     .card-table td:first-child {
-        width: 54px;
+        width: 45px;
         padding-left: 9px;
+    }
+
+    .card-table th:nth-child(2),
+    .card-table td:nth-child(2) {
+        width: 53px;
+        padding-left: 7px;
     }
 
     .card-table th:last-child,
@@ -760,8 +812,13 @@ h1 {
         padding-right: 9px;
     }
 
-    .card-table td:nth-child(2) {
+    .card-table td:nth-child(3) {
         font-size: 1.12rem;
+    }
+
+    .card-detail-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 12px;
     }
 
     .card-table .card-type {
