@@ -21,7 +21,7 @@
                 <h2 id="actions-title">Actions</h2>
             </div>
             <div class="action-list" aria-label="Archive actions">
-                <button class="action-button" type="button" disabled title="Available in a later increment">
+                <button id="show-create-form" class="action-button" type="button" aria-controls="create-panel" aria-expanded="false">
                     <span class="action-glyph" aria-hidden="true">＋</span>Add
                 </button>
                 <button class="action-button" type="button" disabled title="Available in a later increment">
@@ -34,7 +34,118 @@
                     <span class="action-glyph" aria-hidden="true">×</span>Delete
                 </button>
             </div>
-            <p class="action-note">These actions will be enabled in subsequent increments.</p>
+            <p class="action-note">Edit, View, and Delete will be available in subsequent increments.</p>
+        </section>
+
+        <section id="create-panel" class="create-panel" aria-labelledby="create-title" hidden>
+            <div class="create-heading">
+                <div>
+                    <h2 id="create-title">Create a Card</h2>
+                    <p>Enter the card details for the archive.</p>
+                </div>
+            </div>
+
+            <div id="create-form-errors" class="form-errors" role="alert" aria-live="assertive" hidden>
+                <p>Please review the following:</p>
+                <ul id="create-error-list"></ul>
+            </div>
+
+            <form id="create-card-form">
+                <div class="form-grid">
+                    <label class="form-field form-field-wide">
+                        <span>Name <span class="required-mark">*</span></span>
+                        <input name="name" type="text" autocomplete="off" required>
+                    </label>
+
+                    <label class="form-field form-field-wide">
+                        <span>Description <span class="required-mark">*</span></span>
+                        <textarea name="description" rows="3" required></textarea>
+                    </label>
+
+                    <label class="form-field">
+                        <span>Type <span class="required-mark">*</span></span>
+                        <select name="type" required>
+                            <option value="">Select a type</option>
+                            <option value="WEAPON">Weapon</option>
+                            <option value="SHIELD">Shield</option>
+                            <option value="ARMOR">Armor</option>
+                            <option value="ACCESSORY">Accessory</option>
+                            <option value="CONSUMABLE">Consumable</option>
+                            <option value="SPELL">Spell</option>
+                        </select>
+                    </label>
+
+                    <label class="form-field">
+                        <span>Cost <span class="required-mark">*</span></span>
+                        <input name="cost" type="number" min="0" step="1" required>
+                    </label>
+
+                    <fieldset class="optional-fields form-field-wide">
+                        <legend>Optional numeric attributes</legend>
+                        <div class="optional-number-grid">
+                            <label class="form-field">
+                                <span>Attack</span>
+                                <input name="attack" type="number" min="0" step="1">
+                            </label>
+                            <label class="form-field">
+                                <span>Defense</span>
+                                <input name="defense" type="number" min="0" step="1">
+                            </label>
+                            <label class="form-field">
+                                <span>Piercing</span>
+                                <input name="piercing" type="number" min="0" step="1">
+                            </label>
+                            <label class="form-field">
+                                <span>Durability</span>
+                                <input name="durability" type="number" min="0" step="1">
+                            </label>
+                            <label class="form-field">
+                                <span>Magic Damage</span>
+                                <input name="magicDamage" type="number" min="0" step="1">
+                            </label>
+                            <label class="form-field">
+                                <span>Magic Resistance</span>
+                                <input name="magicResistance" type="number" min="0" step="1">
+                            </label>
+                            <label class="form-field">
+                                <span>Parry Bonus</span>
+                                <input name="parryBonus" type="number" min="0" step="1">
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <label class="check-field">
+                        <input name="twoHanded" type="checkbox">
+                        <span>Two-handed</span>
+                    </label>
+
+                    <label class="form-field">
+                        <span>Shield Type <span class="optional-mark">(optional)</span></span>
+                        <select name="shieldType">
+                            <option value="">None</option>
+                            <option value="REGULAR">Regular</option>
+                            <option value="PARRYING">Parrying</option>
+                            <option value="TOWER">Tower</option>
+                        </select>
+                    </label>
+
+                    <div class="form-field form-field-wide">
+                        <span id="image-field-label">Image path <span class="optional-mark">(optional)</span></span>
+                        <div class="image-picker-control">
+                            <input id="image-file" class="visually-hidden file-input-hidden" name="image" type="file" accept="image/*" aria-labelledby="image-field-label" aria-describedby="selected-image-name">
+                            <label class="image-picker-button" for="image-file">Choose Image</label>
+                            <span id="selected-image-name" class="selected-image-name" aria-live="polite">No image selected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="close-create-form" class="action-button form-submit" type="button">Cancel</button>
+                    <button class="action-button form-submit" type="submit">
+                        Save
+                    </button>
+                </div>
+            </form>
         </section>
 
         <section class="archive-panel" aria-labelledby="archive-title">
