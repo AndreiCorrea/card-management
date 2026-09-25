@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111211">
+    <meta name="description" content="Card archive for the Steelbound Arena card manager.">
+    <title>Card Manager — Card Archive</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/app.js" defer></script>
+</head>
+<body>
+    <main class="page-shell">
+        <header class="masthead">
+            <p class="eyebrow">Steelbound Arena</p>
+            <h1>Card Manager</h1>
+        </header>
+
+        <section class="action-panel" aria-labelledby="actions-title">
+            <div class="section-heading action-heading">
+                <h2 id="actions-title">Actions</h2>
+            </div>
+            <div class="action-list" aria-label="Archive actions">
+                <button class="action-button" type="button" disabled title="Available in a later increment">
+                    <span class="action-glyph" aria-hidden="true">＋</span>Add
+                </button>
+                <button class="action-button" type="button" disabled title="Available in a later increment">
+                    <span class="action-glyph" aria-hidden="true">✎</span>Edit
+                </button>
+                <button class="action-button" type="button" disabled title="Available in a later increment">
+                    <span class="action-glyph" aria-hidden="true">⌕</span>View
+                </button>
+                <button class="action-button action-button-danger" type="button" disabled title="Available in a later increment">
+                    <span class="action-glyph" aria-hidden="true">×</span>Delete
+                </button>
+            </div>
+            <p class="action-note">These actions will be enabled in subsequent increments.</p>
+        </section>
+
+        <section class="archive-panel" aria-labelledby="archive-title">
+            <div class="archive-heading">
+                <div class="section-heading">
+                    <h2 id="archive-title">Registered Cards</h2>
+                </div>
+            </div>
+
+            <div class="table-frame">
+                <table class="card-table">
+                    <caption class="visually-hidden">Cards in the archive</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Type</th>
+                        <th scope="col" class="cost-column">Cost</th>
+                    </tr>
+                    </thead>
+                    <tbody id="card-list"></tbody>
+                </table>
+                <p id="list-status" class="list-status" role="status" aria-live="polite">Loading card archive…</p>
+            </div>
+        </section>
+
+        <footer class="page-footer">
+            <p>A Medieval Duel Card Game</p>
+        </footer>
+    </main>
+</body>
+</html>
