@@ -221,6 +221,21 @@
             </article>
         </template>
 
+        <template id="collection-card-template">
+            <li class="collection-card">
+                <button class="collection-card__button" type="button" aria-pressed="false">
+                    <span class="collection-card__art" aria-hidden="true">
+                        <span class="collection-card__mark">SA</span>
+                    </span>
+                    <span class="collection-card__identity">
+                        <span class="collection-card__name"></span>
+                        <span class="collection-card__type"></span>
+                    </span>
+                    <span class="collection-card__cost"></span>
+                </button>
+            </li>
+        </template>
+
         <section class="archive-panel" aria-labelledby="archive-title">
             <div class="archive-heading">
                 <div class="section-heading">
@@ -228,19 +243,8 @@
                 </div>
             </div>
 
-            <div class="table-frame">
-                <table class="card-table">
-                    <caption class="visually-hidden">Cards in the archive</caption>
-                    <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Type</th>
-                        <th scope="col" class="cost-column">Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody id="card-list"></tbody>
-                </table>
+            <div class="collection-frame">
+                <ul id="card-list" class="card-grid" aria-label="Cards in the archive"></ul>
                 <p id="list-status" class="list-status" role="status" aria-live="polite">Loading card archive…</p>
             </div>
         </section>

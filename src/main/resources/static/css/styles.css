@@ -580,119 +580,139 @@ h1 {
     box-shadow: inset 0 0 0 4px rgba(26, 29, 28, 1), inset 0 0 0 5px rgba(165, 143, 99, 0.27);
 }
 
-.table-frame {
-    overflow-x: auto;
+.collection-frame {
     border-top: 1px solid rgba(196, 190, 171, 0.28);
     border-bottom: 1px solid rgba(0, 0, 0, 0.67);
     background: rgba(10, 12, 12, 0.22);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.card-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
+.card-grid {
+    display: grid;
+    margin: 0;
+    padding: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 225px), 1fr));
+    gap: 12px;
+    list-style: none;
 }
 
-.card-table th,
-.card-table td {
-    padding: 14px 17px;
+.collection-card {
+    min-width: 0;
 }
 
-.card-table th {
+.collection-card__button {
+    display: grid;
     position: relative;
-    background: linear-gradient(180deg, #444846, #353a38 48%, #2d3230);
-    box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), inset 0 -2px rgba(0, 0, 0, 0.44);
-    color: #c5b991;
-    font-family: var(--display);
-    font-size: 0.7rem;
-    font-weight: 500;
-}
-
-.card-table th + th::before {
-    position: absolute;
-    top: 10px;
-    bottom: 10px;
-    left: 0;
-    width: 1px;
-    content: "";
-    background: rgba(0, 0, 0, 0.28);
-    box-shadow: 1px 0 rgba(255, 255, 255, 0.035);
-}
-
-.card-table th:first-child,
-.card-table td:first-child {
-    width: 102px;
-    padding-left: 20px;
-}
-
-.card-table th:last-child,
-.card-table td:last-child {
-    width: 108px;
-    padding-right: 20px;
-    text-align: right;
-}
-
-.card-table td {
-    border-bottom: 1px solid rgba(195, 188, 166, 0.075);
-    color: #ded6c6;
-    font-size: 1.13rem;
-    transition: background-color 130ms ease, box-shadow 130ms ease;
-}
-
-.card-table tbody tr:nth-child(even) td {
-    background-color: rgba(205, 199, 180, 0.018);
-}
-
-.card-table tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-.card-table tbody tr:hover td {
-    background-color: rgba(157, 139, 101, 0.09);
-    box-shadow: inset 0 1px rgba(208, 190, 148, 0.05), inset 0 -1px rgba(208, 190, 148, 0.035);
-}
-
-.card-table tbody tr {
+    width: 100%;
+    min-width: 0;
+    min-height: 94px;
+    padding: 10px 11px;
+    align-items: center;
+    grid-template-columns: 48px minmax(0, 1fr) 36px;
+    gap: 10px;
+    border: 1px solid rgba(177, 154, 107, 0.38);
+    background:
+        linear-gradient(135deg, rgba(177, 154, 107, 0.07), transparent 45%),
+        linear-gradient(155deg, #292c29, #171a19 68%, #20211e);
+    box-shadow: inset 0 1px rgba(230, 222, 206, 0.045), inset 0 -2px rgba(0, 0, 0, 0.34);
+    color: var(--parchment);
+    text-align: left;
     cursor: pointer;
+    transition: border-color 130ms ease, background-color 130ms ease, box-shadow 130ms ease, filter 130ms ease;
 }
 
-.card-table tbody tr:focus-visible {
-    outline: 2px solid var(--warm-metal);
-    outline-offset: -2px;
+.collection-card__button:hover {
+    border-color: rgba(193, 166, 111, 0.72);
+    filter: brightness(1.08);
 }
 
-.card-table tbody tr.is-selected td {
-    background-color: rgba(148, 124, 81, 0.22);
-    box-shadow: inset 0 1px rgba(208, 190, 148, 0.1), inset 0 -1px rgba(208, 190, 148, 0.08);
+.collection-card__button:focus-visible {
+    z-index: 1;
+    outline: 2px solid #c2a66c;
+    outline-offset: 2px;
 }
 
-.card-table tbody tr.is-selected td:first-child {
-    box-shadow: inset 3px 0 var(--warm-metal), inset 0 1px rgba(208, 190, 148, 0.1), inset 0 -1px rgba(208, 190, 148, 0.08);
+.collection-card__button.is-selected {
+    border-color: #c0a56e;
+    background:
+        linear-gradient(135deg, rgba(177, 154, 107, 0.16), transparent 52%),
+        linear-gradient(155deg, #35342d, #20211d 68%, #28251f);
+    box-shadow: inset 0 0 0 1px rgba(192, 165, 110, 0.32), inset 0 1px rgba(230, 222, 206, 0.08), 0 3px 8px rgba(0, 0, 0, 0.22);
 }
 
-.card-table .card-id,
-.card-table .card-cost {
-    color: #b4a579;
+.collection-card__button.is-selected::before {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 0;
+    width: 3px;
+    content: "";
+    background: linear-gradient(180deg, transparent, #c0a56e 18% 82%, transparent);
+}
+
+.collection-card__art {
+    display: grid;
+    width: 48px;
+    height: 66px;
+    place-items: center;
+    border: 1px solid rgba(177, 154, 107, 0.46);
+    background:
+        radial-gradient(ellipse at center, rgba(177, 154, 107, 0.12), transparent 65%),
+        repeating-linear-gradient(135deg, transparent 0 12px, rgba(221, 213, 196, 0.025) 12px 13px),
+        #141716;
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.48);
+}
+
+.collection-card__mark {
+    display: grid;
+    width: 29px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid rgba(177, 154, 107, 0.58);
+    color: #d0bd94;
+    font-family: var(--display);
+    font-size: 0.82rem;
+}
+
+.collection-card__identity {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.collection-card__name {
+    color: #e3d5b8;
+    font-family: var(--display);
+    font-size: 1rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.collection-card__type {
+    color: #bda36e;
     font-family: var(--technical);
-    font-size: 0.77rem;
+    font-size: 0.61rem;
+    letter-spacing: 0.07em;
+    line-height: 1.25;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.collection-card__cost {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid rgba(177, 154, 107, 0.72);
+    border-radius: 50%;
+    background: linear-gradient(145deg, #30312c, #111413);
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.7), inset 0 0 0 3px rgba(177, 154, 107, 0.25);
+    color: #e4d3a9;
+    font-family: var(--technical);
+    font-size: 0.78rem;
     font-variant-numeric: tabular-nums;
-}
-
-.card-table .card-id {
-    color: #958c78;
-}
-
-.card-table td:nth-child(2) {
-    color: #e3d8c2;
-    font-size: 1.26rem;
-    font-weight: 600;
-}
-
-.card-table .card-type {
-    color: #a9a699;
-    font-family: var(--technical);
-    font-size: 0.68rem;
+    font-weight: 700;
 }
 
 .card-detail-fields {
@@ -1102,25 +1122,9 @@ h1 {
         gap: 2px;
     }
 
-    .card-table th,
-    .card-table td {
-        padding: 12px 9px;
-    }
-
-    .card-table th:first-child,
-    .card-table td:first-child {
-        width: 54px;
-        padding-left: 9px;
-    }
-
-    .card-table th:last-child,
-    .card-table td:last-child {
-        width: 67px;
-        padding-right: 9px;
-    }
-
-    .card-table td:nth-child(2) {
-        font-size: 1.12rem;
+    .card-grid {
+        padding: 12px;
+        gap: 10px;
     }
 
     .card-detail-fields {
@@ -1161,9 +1165,6 @@ h1 {
         letter-spacing: 0.07em;
     }
 
-    .card-table .card-type {
-        font-size: 0.59rem;
-    }
 }
 
 @media (max-width: 980px) {

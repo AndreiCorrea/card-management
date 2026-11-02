@@ -21,6 +21,7 @@ const cardDetailFields = document.querySelector("#card-detail-fields");
 const cardPreview = document.querySelector("#card-preview");
 const formCardPreview = document.querySelector("#form-card-preview");
 const cardVisualTemplate = document.querySelector("#card-visual-template");
+const collectionCardTemplate = document.querySelector("#collection-card-template");
 const deleteCardButton = document.querySelector("#delete-card-button");
 const deleteConfirmationPanel = document.querySelector("#delete-confirmation-panel");
 const deleteConfirmationName = document.querySelector("#delete-confirmation-name");
@@ -30,6 +31,9 @@ const cancelDeleteCardButton = document.querySelector("#cancel-delete-card");
 
 let selectedCardId = null;
 let selectedCardName = null;
+let cardDetailsRequestSequence = 0;
+let pendingCardDetailsId = null;
+let renderedCardDetailsId = null;
 let pendingDeleteCard = null;
 let activeMaintenanceOperation = null;
 let editingCardId = null;
@@ -113,62 +117,110 @@ function renderCards(cards) {
     cardList.replaceChildren();
 
     for (const card of cards) {
-        const row = document.createElement("tr");
-        row.tabIndex = 0;
-        row.setAttribute("aria-selected", "false");
-        row.addEventListener("click", () => selectCardRow(row, card));
-        row.addEventListener("keydown", event => {
-            if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
-                const rows = Array.from(cardList.rows);
-                const currentIndex = rows.indexOf(row);
-                let targetIndex = currentIndex;
+        const fragment = collectionCardTemplate.content.cloneNode(true);
+        const item = fragment.querySelector(".collection-card");
+        const button = fragment.querySelector(".collection-card__button");
 
-                if (event.key === "ArrowDown") {
-                    targetIndex = Math.min(currentIndex + 1, rows.length - 1);
-                } else if (event.key === "ArrowUp") {
-                    targetIndex = Math.max(currentIndex - 1, 0);
-                } else if (event.key === "Home") {
-                    targetIndex = 0;
-                } else if (event.key === "End") {
-                    targetIndex = rows.length - 1;
-                }
+        item.querySelector(".collection-card__name").textContent = card.name ?? "Unnamed Card";
+        item.querySelector(".collection-card__type").textContent = String(card.type ?? "Unknown type").replaceAll("_", " ");
+        item.querySelector(".collection-card__cost").textContent = card.cost === null || card.cost === undefined
+            ? "—"
+            : String(card.cost);
 
-                event.preventDefault();
-                if (targetIndex !== currentIndex) {
-                    rows[targetIndex].focus();
-                    selectCardRow(rows[targetIndex], cards[targetIndex]);
-                }
-                return;
-            }
-
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                selectCardRow(row, card);
-            }
+        button.addEventListener("click", () => selectCollectionCard(button, card));
+        button.addEventListener("dblclick", () => {
+            selectCollectionCard(button, card);
+            loadSelectedCard();
         });
-
-        appendCell(row, card.id, "card-id");
-        appendCell(row, card.name);
-        appendCell(row, card.type, "card-type");
-        appendCell(row, card.cost, "card-cost");
-
-        cardList.append(row);
+        button.addEventListener("keydown", event => handleCollectionCardKeydown(event, button, cards));
+        cardList.append(fragment);
     }
 }
 
-function selectCardRow(row, card) {
+function selectCollectionCard(button, card) {
     if (deleteConfirmationPanel.hidden === false && pendingDeleteCard?.id !== card.id) {
         cancelDeleteConfirmation();
     }
 
-    for (const otherRow of cardList.rows) {
-        const isSelected = otherRow === row;
-        otherRow.classList.toggle("is-selected", isSelected);
-        otherRow.setAttribute("aria-selected", String(isSelected));
+    for (const otherButton of cardList.querySelectorAll(".collection-card__button")) {
+        const isSelected = otherButton === button;
+        otherButton.classList.toggle("is-selected", isSelected);
+        otherButton.setAttribute("aria-pressed", String(isSelected));
     }
     selectedCardId = card.id;
     selectedCardName = card.name;
     syncMainActionButtons();
+    if (!cardDetailPanel.hidden) {
+        loadSelectedCard();
+    }
+}
+
+function handleCollectionCardKeydown(event, button, cards) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+        return;
+    }
+
+    const buttons = Array.from(cardList.querySelectorAll(".collection-card__button"));
+    const currentIndex = buttons.indexOf(button);
+    if (currentIndex < 0 || buttons.length === 0) {
+        return;
+    }
+
+    let targetButton;
+    if (event.key === "Home") {
+        targetButton = buttons[0];
+    } else if (event.key === "End") {
+        targetButton = buttons[buttons.length - 1];
+    } else {
+        targetButton = findCardGridNeighbor(button, event.key, buttons);
+    }
+
+    event.preventDefault();
+    if (!targetButton || targetButton === button) {
+        return;
+    }
+
+    targetButton.focus();
+    const targetCard = buttons.indexOf(targetButton);
+    selectCollectionCard(targetButton, cards[targetCard]);
+}
+
+function findCardGridNeighbor(button, direction, buttons) {
+    const rows = [];
+    for (const cardButton of buttons) {
+        const top = cardButton.getBoundingClientRect().top;
+        let row = rows.find(candidate => Math.abs(candidate.top - top) <= 2);
+        if (!row) {
+            row = { top, buttons: [] };
+            rows.push(row);
+        }
+        row.buttons.push(cardButton);
+    }
+    rows.sort((first, second) => first.top - second.top);
+
+    const currentRowIndex = rows.findIndex(row => row.buttons.includes(button));
+    const currentRow = rows[currentRowIndex];
+    if (direction === "ArrowLeft" || direction === "ArrowRight") {
+        const rowButtons = [...currentRow.buttons].sort((first, second) =>
+            first.getBoundingClientRect().left - second.getBoundingClientRect().left
+        );
+        const index = rowButtons.indexOf(button);
+        return rowButtons[index + (direction === "ArrowRight" ? 1 : -1)] ?? button;
+    }
+
+    const targetRow = rows[currentRowIndex + (direction === "ArrowDown" ? 1 : -1)];
+    if (!targetRow) {
+        return button;
+    }
+
+    const currentCenter = button.getBoundingClientRect().left + button.getBoundingClientRect().width / 2;
+    return targetRow.buttons.reduce((closest, candidate) => {
+        const rect = candidate.getBoundingClientRect();
+        const closestRect = closest.getBoundingClientRect();
+        const candidateDistance = Math.abs(rect.left + rect.width / 2 - currentCenter);
+        const closestDistance = Math.abs(closestRect.left + closestRect.width / 2 - currentCenter);
+        return candidateDistance < closestDistance ? candidate : closest;
+    });
 }
 
 function openDeleteConfirmation() {
@@ -251,9 +303,9 @@ function cancelDeleteConfirmation() {
 function clearCardSelection() {
     selectedCardId = null;
     selectedCardName = null;
-    for (const row of cardList.rows) {
-        row.classList.remove("is-selected");
-        row.setAttribute("aria-selected", "false");
+    for (const button of cardList.querySelectorAll(".collection-card__button")) {
+        button.classList.remove("is-selected");
+        button.setAttribute("aria-pressed", "false");
     }
     syncMainActionButtons();
 }
@@ -343,40 +395,84 @@ function prepareEditForm(card) {
 }
 
 async function loadSelectedCard() {
-    if (activeMaintenanceOperation !== null || selectedCardId === null || selectedCardId === undefined) {
+    const panelAlreadyOpen = !cardDetailPanel.hidden;
+    const canRefreshOpenView = panelAlreadyOpen && activeMaintenanceOperation === "view";
+    if ((activeMaintenanceOperation !== null && !canRefreshOpenView)
+        || selectedCardId === null || selectedCardId === undefined) {
         return;
     }
 
-    beginMaintenanceOperation("view");
-    cardDetailPanel.hidden = false;
+    const requestedCardId = selectedCardId;
+    const requestedCardKey = String(requestedCardId);
+    if (panelAlreadyOpen && (renderedCardDetailsId === requestedCardKey
+        || pendingCardDetailsId === requestedCardKey)) {
+        return;
+    }
+
+    if (!panelAlreadyOpen) {
+        beginMaintenanceOperation("view");
+        cardDetailPanel.hidden = false;
+        cardDetailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const requestSequence = ++cardDetailsRequestSequence;
+    pendingCardDetailsId = requestedCardKey;
+    renderedCardDetailsId = null;
     cardDetailFields.hidden = true;
+    cardPreview.hidden = true;
     cardDetailError.hidden = true;
     cardDetailStatus.hidden = false;
     cardDetailStatus.className = "list-status";
     cardDetailStatus.textContent = "Loading card details…";
-    cardDetailPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 
     try {
-        const response = await fetch(`/api/cards/${encodeURIComponent(selectedCardId)}`, {
+        const response = await fetch(`/api/cards/${encodeURIComponent(requestedCardId)}`, {
             headers: { Accept: "application/json" }
         });
 
+        if (!isCurrentCardDetailsRequest(requestSequence, requestedCardKey)) {
+            return;
+        }
+
         if (response.status === 404) {
+            pendingCardDetailsId = null;
             showCardDetailError("This card is no longer available. Refresh the list and try again.");
             return;
         }
 
         if (!response.ok) {
+            pendingCardDetailsId = null;
             showCardDetailError("Unable to load card details. Please try again later.");
             return;
         }
 
         const card = await response.json();
+        if (!isCurrentCardDetailsRequest(requestSequence, requestedCardKey)) {
+            return;
+        }
+        if (card.id === null || card.id === undefined || String(card.id) !== requestedCardKey) {
+            pendingCardDetailsId = null;
+            showCardDetailError("Unable to load card details. Please try again later.");
+            return;
+        }
+
         renderCardDetails(card);
+        pendingCardDetailsId = null;
+        renderedCardDetailsId = requestedCardKey;
         cardDetailStatus.hidden = true;
     } catch {
+        if (!isCurrentCardDetailsRequest(requestSequence, requestedCardKey)) {
+            return;
+        }
+        pendingCardDetailsId = null;
         showCardDetailError("Unable to load card details. Please try again later.");
     }
+}
+
+function isCurrentCardDetailsRequest(requestSequence, requestedCardKey) {
+    return requestSequence === cardDetailsRequestSequence
+        && String(selectedCardId) === requestedCardKey
+        && !cardDetailPanel.hidden;
 }
 
 function renderCardDetails(card) {
@@ -487,23 +583,17 @@ function showCardDetailError(message) {
 }
 
 function closeCardDetails() {
+    cardDetailsRequestSequence++;
+    pendingCardDetailsId = null;
+    renderedCardDetailsId = null;
     cardDetailPanel.hidden = true;
     cardDetailStatus.hidden = true;
     cardDetailError.hidden = true;
     cardDetailFields.hidden = true;
     cardPreview.hidden = true;
     finishMaintenanceOperation();
-    const selectedRow = cardList.querySelector("tr.is-selected");
-    (selectedRow || viewCardButton).focus();
-}
-
-function appendCell(row, value, className = "") {
-    const cell = document.createElement("td");
-    cell.textContent = value ?? "—";
-    if (className) {
-        cell.className = className;
-    }
-    row.append(cell);
+    const selectedButton = cardList.querySelector(".collection-card__button.is-selected");
+    (selectedButton || viewCardButton).focus();
 }
 
 async function loadCards() {
