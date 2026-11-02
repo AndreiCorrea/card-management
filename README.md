@@ -1,81 +1,105 @@
-# Card Management
+# Steelbound Arena — Card Management
 
-A local web application for managing cards for the **Steelbound Arena** card game. The current MVP provides a card list and Create, View, Edit, and Delete flows, including in-page delete confirmation and data validation.
+A local web application for managing cards and decks for **Steelbound Arena**, a medieval duel card game. The application provides card CRUD, a searchable collection, visual card previews, and persistent deck composition.
 
-## Stack
+## Technology
 
-- Java 21 and Spring Boot 4.0.8
-- Maven Wrapper, Spring Web MVC, Bean Validation, and Jackson
-- Plain HTML/CSS/JavaScript served by Spring Boot
-- JSON file persistence
+- Java 21
+- Spring Boot 4.0.8 (Spring Web MVC and Bean Validation)
+- Jackson 2.20.1 for JSON serialization
+- Maven Wrapper
+- Plain HTML, CSS, and JavaScript; no frontend framework or npm toolchain
+- Local JSON file persistence
 
-## Prerequisites
+## Run on Windows
 
-- Git
-- JDK 21, with `JAVA_HOME` pointing to the JDK installation and its `bin` directory on `PATH`
-- PowerShell on Windows and a web browser
-- Internet access for the first build to download Maven and dependencies
-
-No global Maven installation, Node/npm, or database setup is required.
-
-## Clone and configure
-
-Run in PowerShell on Windows:
+Prerequisites: JDK 21 and PowerShell. No global Maven installation or database is required. From the repository root:
 
 ```powershell
-git clone https://github.com/AndreiCorrea/card-management.git
-cd card-management
 java -version
-javac -version
-```
-
-Both Java commands should report version 21. Run all commands below from the repository root. No additional configuration is required. Application settings, including port `8081`, are in [application.yaml](src/main/resources/application.yaml).
-
-## Run
-
-```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-Open [http://localhost:8081](http://localhost:8081). Use **Add** to create a card, or select a row to **View**, **Edit**, or **Delete** it. Stop the application with `Ctrl+C` in the terminal. Port `8081` must be available.
+Open <http://localhost:8081>. The application port is configured as `8081` in [application.yaml](src/main/resources/application.yaml). Stop the server with `Ctrl+C`.
 
-## Test
+Run the automated test suite with:
 
 ```powershell
 .\mvnw.cmd clean test
 ```
 
-The suite covers the card model, JSON repository, API operations, validation, error handling, and application context. Maven reports the result in the terminal and writes test reports to `target/surefire-reports/`.
+## Features
 
-## Data and images
+### Card Management
 
-Card data is persisted to `data/cards.json`, relative to the application's working directory. If missing, the directory and file are created automatically on the first write, such as saving a new card. Existing data is loaded on subsequent runs; no manual file initialization is needed. Back up `data/cards.json` if you want to preserve local card data.
+- Create, view, edit, and delete cards.
+- Card types: Weapon, Shield, Armor, Accessory, Consumable, and Spell.
+- Optional combat and defense attributes distinguish unset (`null`) values from numeric zero.
+- Responsive Card Collection grid with local, multi-term name search and type filtering.
+- Keyboard selection and navigation, plus Card Details with a reusable visual card preview.
+- Add and Edit forms include a live preview.
 
-Image selection currently stores only a filename reference in the card.
+### Deck Builder
 
-## Architecture
+- Create, list, open, edit, and delete decks.
+- Edit deck name and optional description with unsaved-change protection.
+- Browse available cards with local name search and type filtering; add cards to the open deck without changing the original card records.
+- Remove individual card entries, including one copy at a time when a card appears more than once.
+- Preserve card entry order and support multiple copies of the same card.
+- Keep unavailable card references visible and removable after the referenced card is deleted.
+
+## API
+
+All endpoints return JSON except successful `DELETE` requests, which return `204 No Content`. Request validation and malformed JSON errors return `400`; missing cards or decks return `404`.
+
+### Cards
+
+| Method | Endpoint | Behavior |
+|---|---|---|
+| `POST` | `/api/cards` | Create a card; returns `201 Created` and a `Location` header. |
+| `GET` | `/api/cards` | List cards. |
+| `GET` | `/api/cards/{id}` | Retrieve one card. |
+| `PUT` | `/api/cards/{id}` | Replace card fields. |
+| `DELETE` | `/api/cards/{id}` | Delete a card; existing deck references are retained. |
+
+Card request and response fields are `name`, `description`, `type`, `cost`, `attack`, `defense`, `piercing`, `durability`, `twoHanded`, `magicDamage`, `magicResistance`, `shieldType`, `parryBonus`, and `image`; responses also include `id`. Optional numeric attributes may be `null` or `0`. `image` is currently only a filename/reference, not an uploaded or served image.
+
+### Decks
+
+| Method | Endpoint | Behavior |
+|---|---|---|
+| `POST` | `/api/decks` | Create a deck; returns `201 Created` and a `Location` header. `cardIds` may be omitted for an empty deck. |
+| `GET` | `/api/decks` | List summaries with `id`, `name`, `description`, and `cardCount`. |
+| `GET` | `/api/decks/{id}` | Retrieve deck details with ordered `cards` entries. |
+| `PUT` | `/api/decks/{id}` | Replace name, description, and the complete ordered `cardIds` list. `cardIds` is required; an empty list is valid. |
+| `DELETE` | `/api/decks/{id}` | Delete a deck; returns `204 No Content`. |
+
+Each deck detail entry contains `cardId`, `available`, and `card`. When the referenced card exists, `available` is `true` and `card` contains its current data. When it has been deleted, the entry remains in its original position with `available: false` and `card: null`. Duplicate IDs are represented as separate ordered entries.
+
+Errors use `{ "status": ..., "message": ..., "errors": ... }`. Deck names are required and nonblank. New card references must point to existing cards; an existing unavailable reference can be retained or removed when updating a deck, but cannot be duplicated further.
+
+## Persistence
+
+- `data/cards.json` stores card records and the card ID high-water mark.
+- `data/decks.json` stores deck records and an independent deck ID high-water mark.
+- Both sequences start at `1` and advance independently; deleted IDs are not reused.
+- Decks persist ordered `cardIds`, not copies of Card objects. Duplicate IDs represent multiple entries.
+- Deleting a card does not rewrite deck files. The API resolves each reference when returning deck details and reports missing cards as unavailable.
+- Data files are created on writes relative to the application working directory. Back up both files to preserve local cards and decks.
+
+## Project structure
 
 ```text
-Frontend
-  -> CardController
-  -> CardService
-  -> CardRepository
-  -> JsonCardRepository
-  -> data/cards.json
+src/main/java/.../card/       Card model, API, service, and JSON repository
+src/main/java/.../deck/       Deck model, API, service, and JSON repository
+src/main/java/.../card/exception/  Shared API exception handling
+src/main/resources/static/    HTML, CSS, and JavaScript frontend
+src/test/java/                Unit and HTTP integration tests
+data/                         Local cards.json and decks.json files
 ```
-
-The frontend lives in `src/main/resources/static/` and calls the REST API at `/api/cards`. The controller handles HTTP requests, the service coordinates card operations, and the repository implementation reads and writes JSON. Backend code is in `src/main/java/`; tests are in `src/test/java/`.
-
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for domain semantics, API details, and the project roadmap.
 
 ## Current limitations
 
-- Image upload and storage are not implemented yet.
-- Visual card rendering and card image downloads are not implemented yet.
-- Persistence currently uses a JSON file rather than a database.
-
-## Collaboration
-
-- Pull the latest `main` before starting work.
-- Use focused branches for isolated changes when useful.
-- Do not commit generated build output such as `target/`.
+- Card images are filename references only; image upload, storage, and serving are not implemented.
+- Deck rules, size limits, and gameplay validation are not implemented; the app stores and composes card entries.
+- Persistence is local JSON file storage rather than a database.

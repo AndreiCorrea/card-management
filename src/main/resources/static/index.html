@@ -16,6 +16,12 @@
             <h1>Card Manager</h1>
         </header>
 
+        <nav class="section-navigation" aria-label="Application sections">
+            <button id="show-card-collection" class="action-button section-navigation__button is-active" type="button" aria-controls="card-collection-section" aria-pressed="true">Card Collection</button>
+            <button id="show-deck-builder" class="action-button section-navigation__button" type="button" aria-controls="deck-builder-section" aria-pressed="false">Deck Builder</button>
+        </nav>
+
+        <div id="card-collection-section">
         <section class="action-panel" aria-labelledby="actions-title">
             <div class="section-heading action-heading">
                 <h2 id="actions-title">Actions</h2>
@@ -257,6 +263,125 @@
                 <p id="list-status" class="list-status" role="status" aria-live="polite">Loading card archive…</p>
             </div>
         </section>
+        </div>
+
+        <section id="deck-builder-section" class="deck-builder-section" aria-labelledby="deck-builder-title" hidden>
+            <header class="deck-builder-heading">
+                <p class="eyebrow">Steelbound Arena</p>
+                <h2 id="deck-builder-title">Deck Builder</h2>
+                <p>Shape a collection of cards into a deck and return to it whenever you wish.</p>
+            </header>
+            <div class="deck-builder-workspace">
+                <section class="deck-builder-region deck-library-region" aria-labelledby="deck-library-title">
+                    <div class="deck-region-heading">
+                        <h3 id="deck-library-title">Saved Decks</h3>
+                        <button id="new-deck-button" class="action-button" type="button">New Deck</button>
+                    </div>
+                    <form id="deck-create-form" class="deck-create-form" hidden>
+                        <h4>Create a Deck</h4>
+                        <p id="deck-create-error" class="form-errors" role="alert" hidden></p>
+                        <label class="form-field">
+                            <span>Name <span class="required-mark">*</span></span>
+                            <input id="deck-name-input" name="name" type="text" autocomplete="off" required>
+                        </label>
+                        <label class="form-field">
+                            <span>Description <span class="optional-mark">(optional)</span></span>
+                            <textarea id="deck-description-input" name="description" rows="2"></textarea>
+                        </label>
+                        <div class="form-actions">
+                            <button id="cancel-create-deck" class="action-button form-submit" type="button">Cancel</button>
+                            <button id="submit-create-deck" class="action-button form-submit" type="submit">Create Deck</button>
+                        </div>
+                    </form>
+                    <p id="deck-feedback" class="deck-feedback" role="status" aria-live="polite" hidden></p>
+                    <p id="deck-list-status" class="deck-list-status" role="status" aria-live="polite" hidden></p>
+                    <div id="deck-list-empty" class="deck-empty-state" role="status" hidden>
+                        <span class="deck-empty-state__mark" aria-hidden="true">SA</span>
+                        <p>No decks have been forged yet. Create a deck to begin.</p>
+                    </div>
+                    <ul id="deck-list" class="deck-list" aria-label="Saved decks" hidden></ul>
+                    <button id="retry-load-decks" class="action-button deck-retry-button" type="button" hidden>Retry</button>
+                </section>
+                <section class="deck-builder-region deck-editor-region" aria-labelledby="deck-editor-title">
+                    <h3 id="deck-editor-title">Deck Workspace</h3>
+                    <p id="deck-workspace-status" class="deck-workspace-status" role="status" aria-live="polite">Choose a saved deck to view its details.</p>
+                    <div id="deck-workspace-details" class="deck-workspace-details" hidden>
+                        <header class="deck-open-heading">
+                            <div>
+                                <h4 id="deck-open-name"></h4>
+                                <p id="deck-open-card-count" class="deck-open-count"></p>
+                            </div>
+                            <span id="deck-unsaved-indicator" class="deck-unsaved-indicator" role="status" hidden>Unsaved changes</span>
+                        </header>
+                        <p id="deck-metadata-feedback" class="deck-metadata-feedback" role="status" aria-live="polite" hidden></p>
+                        <form id="deck-metadata-form" class="deck-metadata-form" hidden>
+                            <p id="deck-metadata-error" class="form-errors" role="alert" hidden></p>
+                            <label class="form-field">
+                                <span>Name <span class="required-mark">*</span></span>
+                                <input id="deck-draft-name" name="name" type="text" autocomplete="off" required>
+                            </label>
+                            <label class="form-field">
+                                <span>Description <span class="optional-mark">(optional)</span></span>
+                                <textarea id="deck-draft-description" name="description" rows="3"></textarea>
+                            </label>
+                            <div class="form-actions">
+                                <button id="save-deck-changes" class="action-button form-submit" type="submit" disabled>Save Changes</button>
+                            </div>
+                        </form>
+                        <section class="deck-entry-section" aria-labelledby="deck-entries-title">
+                            <h5 id="deck-entries-title">Card Entries</h5>
+                            <p id="deck-entry-empty" class="deck-entry-empty" hidden>This deck has no card entries.</p>
+                            <ol id="deck-entry-list" class="deck-entry-list" aria-label="Cards in this deck"></ol>
+                        </section>
+                    </div>
+                </section>
+            </div>
+            <section class="deck-builder-region deck-card-browser" aria-labelledby="deck-card-browser-title">
+                <div class="deck-browser-heading">
+                    <div>
+                        <h3 id="deck-card-browser-title">Card Browser</h3>
+                        <p>Choose cards to add to the open deck. You can add the same card more than once.</p>
+                    </div>
+                </div>
+                <div id="deck-browser-controls" class="collection-controls deck-browser-controls" role="search" aria-label="Search and filter cards to add" hidden>
+                    <label class="collection-control collection-control--search" for="deck-browser-search">
+                        <span>Search cards by name</span>
+                        <input id="deck-browser-search" type="search" autocomplete="off">
+                    </label>
+                    <label class="collection-control" for="deck-browser-type-filter">
+                        <span>Type</span>
+                        <select id="deck-browser-type-filter">
+                            <option value="">All types</option>
+                            <option value="WEAPON">Weapon</option>
+                            <option value="SHIELD">Shield</option>
+                            <option value="ARMOR">Armor</option>
+                            <option value="ACCESSORY">Accessory</option>
+                            <option value="CONSUMABLE">Consumable</option>
+                            <option value="SPELL">Spell</option>
+                        </select>
+                    </label>
+                    <button id="clear-deck-browser-filters" class="collection-clear-button" type="button">Clear filters</button>
+                </div>
+                <p id="deck-browser-status" class="deck-browser-status" role="status" aria-live="polite">Open a deck to browse cards and add entries.</p>
+                <ul id="deck-browser-list" class="deck-browser-list" aria-label="Available cards" hidden></ul>
+            </section>
+        </section>
+
+        <template id="deck-browser-card-template">
+            <li class="deck-browser-entry">
+                <div class="deck-browser-card">
+                    <span class="collection-card__art deck-browser-card__art" aria-hidden="true">
+                        <span class="collection-card__mark">SA</span>
+                    </span>
+                    <span class="collection-card__identity">
+                        <span class="collection-card__name"></span>
+                        <span class="collection-card__type"></span>
+                    </span>
+                    <span class="collection-card__cost"></span>
+                    <button class="action-button deck-browser-add-button" type="button">Add to Deck</button>
+                </div>
+            </li>
+        </template>
 
         <footer class="page-footer">
             <p>A Medieval Duel Card Game</p>

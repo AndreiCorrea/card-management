@@ -1,6 +1,7 @@
 package com.andreicorrealemos.card_management.card.exception;
 
 import com.andreicorrealemos.card_management.card.dto.ErrorResponse;
+import com.andreicorrealemos.card_management.deck.exception.DeckNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(CardNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCardNotFound(CardNotFoundException exception) {
         return error(HttpStatus.NOT_FOUND, "Card not found", Map.of());
+    }
+
+    @ExceptionHandler(DeckNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDeckNotFound(DeckNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, "Deck not found", Map.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

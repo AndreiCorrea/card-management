@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-`card-management` is a local web application for registering, maintaining, and consulting cards for a custom card game.
+`card-management` is a local web application for managing cards and decks for Steelbound Arena, a medieval duel card game.
 
 The game design already exists: concept, card model, rules, card definitions, lore, visual identity, and initial playtesting. This software project starts with the Card Manager MVP.
 
@@ -27,9 +27,6 @@ Do not implement unless explicitly requested later:
 - Game Engine;
 - complete game-rule execution;
 - card effects/rules engine;
-- Deck Builder;
-- deck persistence;
-- final card visual template;
 - PNG generation;
 - printing;
 - Tabletop Simulator export;
@@ -374,16 +371,18 @@ Confirm not found
 Already completed.
 
 ### Phase 1 — Card Manager MVP
-Current phase: domain, repository, service, REST API, validation, exceptions, tests, frontend and CRUD.
+Completed: card domain, JSON repository, service, REST API, validation, exception handling, tests, frontend and CRUD.
 
 ### Phase 2 — Card Visual / Template Preview
-Live visual card preview and reusable template.
+Completed: reusable visual card template, View preview, Add/Edit live preview, and visual identity refinements.
 
 ### Phase 3 — Card Collection
-Visual browsing, filters and search.
+Completed: responsive Card Grid, local search and type filters, keyboard navigation, and selected Card Details presentation.
 
 ### Phase 4 — Deck Builder
-Deck creation, card selection and persistence.
+Completed: Deck model and independent JSON persistence, business service, REST API and validation, plus the Deck Builder frontend.
+
+Implemented functionality includes deck create/list/open/edit/delete, ordered card ID entries, repeated copies, a local searchable and filterable Card Browser, adding and removing individual entries, unavailable-reference handling, and draft/unsaved-change protection. Documentation and final technical review are complete.
 
 ### Phase 5 — Card Generator
 PNG export, printing and Tabletop Simulator assets.
@@ -391,7 +390,7 @@ PNG export, printing and Tabletop Simulator assets.
 ### Phase 6 — Game Engine
 Game state, turns, combat, rules and effects.
 
-Do not implement future phases during the MVP.
+Do not implement future phases until explicitly requested.
 
 ## 18. Future Visual Architecture
 
