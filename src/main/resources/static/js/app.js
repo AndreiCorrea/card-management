@@ -18,6 +18,7 @@ const closeCardDetailButton = document.querySelector("#close-card-detail");
 const cardDetailStatus = document.querySelector("#card-detail-status");
 const cardDetailError = document.querySelector("#card-detail-error");
 const cardDetailFields = document.querySelector("#card-detail-fields");
+const cardPreview = document.querySelector("#card-preview");
 const deleteCardButton = document.querySelector("#delete-card-button");
 const deleteConfirmationPanel = document.querySelector("#delete-confirmation-panel");
 const deleteConfirmationName = document.querySelector("#delete-confirmation-name");
@@ -373,6 +374,7 @@ async function loadSelectedCard() {
 }
 
 function renderCardDetails(card) {
+    renderCardPreview(card);
     const values = {
         "detail-id": card.id,
         "detail-name": card.name,
@@ -397,6 +399,41 @@ function renderCardDetails(card) {
     cardDetailFields.hidden = false;
 }
 
+function renderCardPreview(card) {
+    document.querySelector("#preview-name").textContent = card.name ?? "Unnamed Card";
+    document.querySelector("#preview-cost").textContent = card.cost === null || card.cost === undefined ? "—" : String(card.cost);
+    document.querySelector("#preview-type").textContent = String(card.type ?? "Unknown type").replaceAll("_", " ");
+    document.querySelector("#preview-description").textContent = card.description ?? "";
+
+    const attributes = document.querySelector("#preview-attributes");
+    attributes.replaceChildren();
+    const values = [
+        ["Attack", card.attack], ["Defense", card.defense], ["Piercing", card.piercing],
+        ["Durability", card.durability], ["Magic Damage", card.magicDamage],
+        ["Magic Resistance", card.magicResistance], ["Parry Bonus", card.parryBonus]
+    ];
+    for (const [label, value] of values) {
+        if (value === null || value === undefined) continue;
+        const item = document.createElement("div");
+        const term = document.createElement("dt");
+        const description = document.createElement("dd");
+        term.textContent = label;
+        description.textContent = String(value);
+        item.append(term, description);
+        attributes.append(item);
+    }
+
+    const shield = document.querySelector("#preview-shield");
+    const traits = [];
+    if (card.twoHanded) traits.push("Two-handed");
+    if (card.shieldType !== null && card.shieldType !== undefined) {
+        traits.push(`Shield: ${String(card.shieldType).replaceAll("_", " ")}`);
+    }
+    shield.textContent = traits.join(" · ");
+    shield.hidden = traits.length === 0;
+    cardPreview.hidden = false;
+}
+
 function optionalDisplayValue(value) {
     return value === null || value === undefined ? "Not set" : String(value);
 }
@@ -412,6 +449,7 @@ function closeCardDetails() {
     cardDetailStatus.hidden = true;
     cardDetailError.hidden = true;
     cardDetailFields.hidden = true;
+    cardPreview.hidden = true;
     finishMaintenanceOperation();
     const selectedRow = cardList.querySelector("tr.is-selected");
     (selectedRow || viewCardButton).focus();

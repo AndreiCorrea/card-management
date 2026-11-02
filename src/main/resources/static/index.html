@@ -171,6 +171,25 @@
             </div>
             <p id="card-detail-status" class="list-status" role="status" aria-live="polite" hidden></p>
             <p id="card-detail-error" class="form-errors" role="alert" hidden></p>
+            <section class="card-preview-section" aria-labelledby="card-preview-title">
+                <h3 id="card-preview-title">Card Preview</h3>
+                <article id="card-preview" class="card-preview" aria-label="Visual card preview" hidden>
+                    <div class="card-preview-art" aria-hidden="true">
+                        <span class="card-preview-art-mark">SA</span>
+                        <span class="card-preview-art-caption">Steelbound Arena</span>
+                    </div>
+                    <div class="card-preview-face">
+                        <header class="card-preview-header">
+                            <h4 id="preview-name"></h4>
+                            <span id="preview-cost" class="card-preview-cost"></span>
+                        </header>
+                        <p id="preview-type" class="card-preview-type"></p>
+                        <p id="preview-description" class="card-preview-description"></p>
+                        <dl id="preview-attributes" class="card-preview-attributes"></dl>
+                        <p id="preview-shield" class="card-preview-trait" hidden></p>
+                    </div>
+                </article>
+            </section>
             <dl id="card-detail-fields" class="card-detail-fields" hidden>
                 <div><dt>ID</dt><dd id="detail-id"></dd></div>
                 <div><dt>Name</dt><dd id="detail-name"></dd></div>

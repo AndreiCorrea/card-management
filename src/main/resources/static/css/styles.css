@@ -669,6 +669,161 @@ h1 {
     gap: 0 22px;
 }
 
+.card-preview-section {
+    margin: 0 0 24px;
+    padding: 13px 14px 5px;
+    border: 1px solid rgba(177, 154, 107, 0.28);
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.card-preview-section > h3 {
+    margin: 0 0 13px;
+    color: #cbb98f;
+    font-family: var(--display);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.card-preview {
+    display: grid;
+    width: min(100%, 760px);
+    min-height: 250px;
+    margin: 0 auto 22px;
+    grid-template-columns: minmax(130px, 0.78fr) minmax(0, 1.4fr);
+    overflow: hidden;
+    border: 1px solid #756343;
+    background: linear-gradient(135deg, #33342e, #171a19 48%, #22211c);
+    box-shadow: 0 9px 22px rgba(0, 0, 0, 0.42), inset 0 0 0 4px rgba(177, 154, 107, 0.08);
+}
+
+.card-preview-art {
+    display: flex;
+    min-height: 250px;
+    padding: 18px 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-right: 1px solid rgba(177, 154, 107, 0.42);
+    background:
+        radial-gradient(ellipse, rgba(177, 154, 107, 0.18), transparent 62%),
+        repeating-linear-gradient(135deg, transparent 0 15px, rgba(255, 255, 255, 0.018) 15px 16px),
+        #171a19;
+    color: #b19a6b;
+}
+
+.card-preview-art-mark {
+    display: grid;
+    width: 84px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid rgba(177, 154, 107, 0.6);
+    outline: 1px solid rgba(177, 154, 107, 0.25);
+    outline-offset: 5px;
+    font-family: var(--display);
+    font-size: 1.8rem;
+}
+
+.card-preview-art-caption {
+    font-family: var(--technical);
+    font-size: 0.57rem;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.card-preview-face {
+    min-width: 0;
+    padding: 16px 19px;
+}
+
+.card-preview-header {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--rule);
+}
+
+.card-preview-header h4 {
+    min-width: 0;
+    margin: 0 0 7px;
+    color: #e3d5b8;
+    font-family: var(--display);
+    font-size: 1.28rem;
+    font-weight: 500;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.card-preview-cost {
+    display: grid;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid #947c51;
+    border-radius: 50%;
+    color: #e4d3a9;
+    font-family: var(--technical);
+}
+
+.card-preview-type {
+    margin: 7px 0;
+    color: #b19a6b;
+    font-family: var(--technical);
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.card-preview-description {
+    margin: 10px 0;
+    color: #ded6c6;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.card-preview-attributes {
+    display: flex;
+    margin: 12px 0 0;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.card-preview-attributes > div {
+    min-width: 74px;
+    padding: 5px 8px;
+    border: 1px solid rgba(177, 154, 107, 0.3);
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.card-preview-attributes dt {
+    color: #b8aa88;
+    font-family: var(--technical);
+    font-size: 0.56rem;
+}
+
+.card-preview-attributes dd {
+    margin: 2px 0 0;
+    color: #eee5d4;
+    font-family: var(--technical);
+    font-size: 0.9rem;
+}
+
+.card-preview-trait {
+    margin: 10px 0 0;
+    color: #d0b980;
+    font-size: 0.95rem;
+    font-style: italic;
+    overflow-wrap: anywhere;
+}
+
 .card-detail-fields > div {
     min-width: 0;
     padding: 10px 2px;
@@ -816,6 +971,27 @@ h1 {
     .card-detail-fields {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0 12px;
+    }
+
+    .card-preview {
+        grid-template-columns: 105px minmax(0, 1fr);
+    }
+
+    .card-preview-art {
+        min-height: 200px;
+        padding: 10px 6px;
+    }
+
+    .card-preview-art-mark {
+        width: 62px;
+    }
+
+    .card-preview-face {
+        padding: 13px 12px;
+    }
+
+    .card-preview-header h4 {
+        font-size: 1.05rem;
     }
 
     .card-table .card-type {
