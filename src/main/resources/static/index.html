@@ -178,26 +178,16 @@
             <p id="card-detail-status" class="list-status" role="status" aria-live="polite" hidden></p>
             <p id="card-detail-error" class="form-errors" role="alert" hidden></p>
             <section class="card-preview-section" aria-labelledby="card-preview-title">
-                <h3 id="card-preview-title">Card Preview</h3>
+                <h3 id="card-preview-title">Steelbound Arena Card</h3>
                 <article id="card-preview" aria-label="Visual card preview" hidden></article>
             </section>
-            <dl id="card-detail-fields" class="card-detail-fields" hidden>
-                <div><dt>ID</dt><dd id="detail-id"></dd></div>
-                <div><dt>Name</dt><dd id="detail-name"></dd></div>
-                <div class="detail-wide"><dt>Description</dt><dd id="detail-description"></dd></div>
-                <div><dt>Type</dt><dd id="detail-type"></dd></div>
-                <div><dt>Cost</dt><dd id="detail-cost"></dd></div>
-                <div><dt>Attack</dt><dd id="detail-attack"></dd></div>
-                <div><dt>Defense</dt><dd id="detail-defense"></dd></div>
-                <div><dt>Piercing</dt><dd id="detail-piercing"></dd></div>
-                <div><dt>Durability</dt><dd id="detail-durability"></dd></div>
-                <div><dt>Two-handed</dt><dd id="detail-two-handed"></dd></div>
-                <div><dt>Magic Damage</dt><dd id="detail-magic-damage"></dd></div>
-                <div><dt>Magic Resistance</dt><dd id="detail-magic-resistance"></dd></div>
-                <div><dt>Shield Type</dt><dd id="detail-shield-type"></dd></div>
-                <div><dt>Parry Bonus</dt><dd id="detail-parry-bonus"></dd></div>
-                <div class="detail-wide"><dt>Image</dt><dd id="detail-image"></dd></div>
-            </dl>
+            <section id="card-detail-metadata" class="card-detail-metadata" aria-labelledby="card-detail-metadata-title" hidden>
+                <h3 id="card-detail-metadata-title">Archive Metadata</h3>
+                <dl id="card-detail-fields" class="card-detail-fields" hidden>
+                    <div><dt>ID</dt><dd id="detail-id"></dd></div>
+                    <div class="detail-wide"><dt>Image reference</dt><dd id="detail-image"></dd></div>
+                </dl>
+            </section>
         </section>
 
         <template id="card-visual-template">
@@ -244,6 +234,25 @@
             </div>
 
             <div class="collection-frame">
+                <div class="collection-controls" role="search" aria-label="Search and filter cards">
+                    <label class="collection-control collection-control--search" for="collection-search">
+                        <span>Search by name</span>
+                        <input id="collection-search" type="search" autocomplete="off">
+                    </label>
+                    <label class="collection-control" for="collection-type-filter">
+                        <span>Type</span>
+                        <select id="collection-type-filter">
+                            <option value="">All types</option>
+                            <option value="WEAPON">Weapon</option>
+                            <option value="SHIELD">Shield</option>
+                            <option value="ARMOR">Armor</option>
+                            <option value="ACCESSORY">Accessory</option>
+                            <option value="CONSUMABLE">Consumable</option>
+                            <option value="SPELL">Spell</option>
+                        </select>
+                    </label>
+                    <button id="clear-collection-filters" class="collection-clear-button" type="button">Clear filters</button>
+                </div>
                 <ul id="card-list" class="card-grid" aria-label="Cards in the archive"></ul>
                 <p id="list-status" class="list-status" role="status" aria-live="polite">Loading card archive…</p>
             </div>

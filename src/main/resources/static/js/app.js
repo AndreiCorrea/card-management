@@ -18,6 +18,7 @@ const closeCardDetailButton = document.querySelector("#close-card-detail");
 const cardDetailStatus = document.querySelector("#card-detail-status");
 const cardDetailError = document.querySelector("#card-detail-error");
 const cardDetailFields = document.querySelector("#card-detail-fields");
+const cardDetailMetadata = document.querySelector("#card-detail-metadata");
 const cardPreview = document.querySelector("#card-preview");
 const formCardPreview = document.querySelector("#form-card-preview");
 const cardVisualTemplate = document.querySelector("#card-visual-template");
@@ -28,7 +29,12 @@ const deleteConfirmationName = document.querySelector("#delete-confirmation-name
 const deleteConfirmationError = document.querySelector("#delete-confirmation-error");
 const confirmDeleteCardButton = document.querySelector("#confirm-delete-card");
 const cancelDeleteCardButton = document.querySelector("#cancel-delete-card");
+const collectionSearch = document.querySelector("#collection-search");
+const collectionTypeFilter = document.querySelector("#collection-type-filter");
+const clearCollectionFiltersButton = document.querySelector("#clear-collection-filters");
 
+let allCards = [];
+let collectionLoadState = "loading";
 let selectedCardId = null;
 let selectedCardName = null;
 let cardDetailsRequestSequence = 0;
@@ -71,6 +77,14 @@ closeCardDetailButton.addEventListener("click", closeCardDetails);
 deleteCardButton.addEventListener("click", openDeleteConfirmation);
 confirmDeleteCardButton.addEventListener("click", deleteSelectedCard);
 cancelDeleteCardButton.addEventListener("click", cancelDeleteConfirmation);
+collectionSearch.addEventListener("input", applyCollectionFilters);
+collectionTypeFilter.addEventListener("change", applyCollectionFilters);
+clearCollectionFiltersButton.addEventListener("click", () => {
+    collectionSearch.value = "";
+    collectionTypeFilter.value = "";
+    applyCollectionFilters();
+    collectionSearch.focus();
+});
 
 function showStatus(message, state = "") {
     listStatus.textContent = message;
@@ -113,7 +127,6 @@ function handleFormKeyboardNavigation(event) {
 }
 
 function renderCards(cards) {
-    clearCardSelection();
     cardList.replaceChildren();
 
     for (const card of cards) {
@@ -127,6 +140,10 @@ function renderCards(cards) {
             ? "—"
             : String(card.cost);
 
+        const isSelected = cardIdsEqual(card.id, selectedCardId);
+        button.classList.toggle("is-selected", isSelected);
+        button.setAttribute("aria-pressed", String(isSelected));
+
         button.addEventListener("click", () => selectCollectionCard(button, card));
         button.addEventListener("dblclick", () => {
             selectCollectionCard(button, card);
@@ -135,6 +152,78 @@ function renderCards(cards) {
         button.addEventListener("keydown", event => handleCollectionCardKeydown(event, button, cards));
         cardList.append(fragment);
     }
+}
+
+function applyCollectionFilters() {
+    if (collectionLoadState !== "ready") {
+        return;
+    }
+
+    const queryTerms = normalizeSearchText(collectionSearch.value).split(/\s+/).filter(Boolean);
+    const selectedType = collectionTypeFilter.value;
+    const visibleCards = allCards.filter(card => {
+        const normalizedName = normalizeSearchText(card.name);
+        const nameMatches = queryTerms.every(term => normalizedName.includes(term));
+        const typeMatches = selectedType === "" || card.type === selectedType;
+        return nameMatches && typeMatches;
+    });
+
+    if (selectedCardId !== null && selectedCardId !== undefined) {
+        const selectedCard = visibleCards.find(card => cardIdsEqual(card.id, selectedCardId));
+        if (selectedCard) {
+            selectedCardName = selectedCard.name;
+        } else {
+            clearSelectionForFilteredCard();
+        }
+    }
+
+    renderCards(visibleCards);
+    if (allCards.length === 0) {
+        showStatus("No cards have been registered yet.", "empty");
+    } else if (visibleCards.length === 0) {
+        showStatus("No cards match the current search and filters.", "no-results");
+    } else {
+        showStatus("");
+    }
+}
+
+function normalizeSearchText(value) {
+    return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+function clearSelectionForFilteredCard() {
+    const filteredOutCardId = selectedCardId;
+    if (deleteConfirmationPanel.hidden === false
+        && cardIdsEqual(pendingDeleteCard?.id, filteredOutCardId)
+        && !confirmDeleteCardButton.disabled) {
+        hideDeleteConfirmation();
+        finishMaintenanceOperation();
+    }
+
+    clearCardSelection();
+    cardDetailsRequestSequence++;
+    pendingCardDetailsId = null;
+    renderedCardDetailsId = null;
+
+    if (!cardDetailPanel.hidden) {
+        cardPreview.hidden = true;
+        cardDetailFields.hidden = true;
+        cardDetailMetadata.hidden = true;
+        cardDetailError.hidden = true;
+        cardDetailStatus.className = "list-status";
+        cardDetailStatus.textContent = "This card is no longer in the current results. Adjust or clear the filters to continue viewing cards.";
+        cardDetailStatus.hidden = false;
+    }
+}
+
+function cardIdsEqual(first, second) {
+    return first !== null && first !== undefined
+        && second !== null && second !== undefined
+        && String(first) === String(second);
 }
 
 function selectCollectionCard(button, card) {
@@ -205,7 +294,22 @@ function findCardGridNeighbor(button, direction, buttons) {
             first.getBoundingClientRect().left - second.getBoundingClientRect().left
         );
         const index = rowButtons.indexOf(button);
-        return rowButtons[index + (direction === "ArrowRight" ? 1 : -1)] ?? button;
+        const horizontalNeighbor = rowButtons[index + (direction === "ArrowRight" ? 1 : -1)];
+        if (horizontalNeighbor) {
+            return horizontalNeighbor;
+        }
+
+        const adjacentRow = rows[currentRowIndex + (direction === "ArrowRight" ? 1 : -1)];
+        if (!adjacentRow) {
+            return button;
+        }
+
+        const adjacentRowButtons = [...adjacentRow.buttons].sort((first, second) =>
+            first.getBoundingClientRect().left - second.getBoundingClientRect().left
+        );
+        return direction === "ArrowRight"
+            ? adjacentRowButtons[0]
+            : adjacentRowButtons[adjacentRowButtons.length - 1];
     }
 
     const targetRow = rows[currentRowIndex + (direction === "ArrowDown" ? 1 : -1)];
@@ -263,7 +367,6 @@ async function deleteSelectedCard() {
         }
 
         hideDeleteConfirmation();
-        clearCardSelection();
         await loadCards();
         finishMaintenanceOperation();
         showCreateFormButton.focus();
@@ -419,6 +522,7 @@ async function loadSelectedCard() {
     pendingCardDetailsId = requestedCardKey;
     renderedCardDetailsId = null;
     cardDetailFields.hidden = true;
+    cardDetailMetadata.hidden = true;
     cardPreview.hidden = true;
     cardDetailError.hidden = true;
     cardDetailStatus.hidden = false;
@@ -479,26 +583,14 @@ function renderCardDetails(card) {
     renderCardTemplate(cardPreview, card);
     const values = {
         "detail-id": card.id,
-        "detail-name": card.name,
-        "detail-description": card.description,
-        "detail-type": card.type,
-        "detail-cost": card.cost,
-        "detail-attack": optionalDisplayValue(card.attack),
-        "detail-defense": optionalDisplayValue(card.defense),
-        "detail-piercing": optionalDisplayValue(card.piercing),
-        "detail-durability": optionalDisplayValue(card.durability),
-        "detail-two-handed": card.twoHanded ? "Yes" : "No",
-        "detail-magic-damage": optionalDisplayValue(card.magicDamage),
-        "detail-magic-resistance": optionalDisplayValue(card.magicResistance),
-        "detail-shield-type": optionalDisplayValue(card.shieldType),
-        "detail-parry-bonus": optionalDisplayValue(card.parryBonus),
-        "detail-image": optionalDisplayValue(card.image)
+        "detail-image": card.image === null || card.image === undefined ? "Not set" : String(card.image)
     };
 
     for (const [id, value] of Object.entries(values)) {
         document.getElementById(id).textContent = value;
     }
     cardDetailFields.hidden = false;
+    cardDetailMetadata.hidden = false;
 }
 
 function renderCardTemplate(root, card) {
@@ -572,10 +664,6 @@ function previewNumber(value) {
     return Number.isFinite(number) ? number : null;
 }
 
-function optionalDisplayValue(value) {
-    return value === null || value === undefined ? "Not set" : String(value);
-}
-
 function showCardDetailError(message) {
     cardDetailStatus.hidden = true;
     cardDetailError.textContent = message;
@@ -590,13 +678,15 @@ function closeCardDetails() {
     cardDetailStatus.hidden = true;
     cardDetailError.hidden = true;
     cardDetailFields.hidden = true;
+    cardDetailMetadata.hidden = true;
     cardPreview.hidden = true;
     finishMaintenanceOperation();
     const selectedButton = cardList.querySelector(".collection-card__button.is-selected");
-    (selectedButton || viewCardButton).focus();
+    (selectedButton || collectionSearch || collectionTypeFilter || viewCardButton).focus();
 }
 
 async function loadCards() {
+    collectionLoadState = "loading";
     showStatus("Loading card archive…");
 
     try {
@@ -613,15 +703,18 @@ async function loadCards() {
             throw new Error("Card list response was invalid");
         }
 
-        renderCards(cards);
-        if (cards.length === 0) {
-            showStatus("No cards have been registered yet.", "empty");
-        } else {
-            showStatus("");
-        }
+        allCards = cards;
+        collectionLoadState = "ready";
+        applyCollectionFilters();
     } catch {
+        allCards = [];
+        collectionLoadState = "error";
         cardList.replaceChildren();
-        clearCardSelection();
+        if (selectedCardId !== null && selectedCardId !== undefined) {
+            clearSelectionForFilteredCard();
+        } else {
+            clearCardSelection();
+        }
         showStatus("Unable to load cards. Please try again later.", "error");
     }
 }
