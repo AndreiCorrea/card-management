@@ -266,6 +266,39 @@ h1 {
     font-style: italic;
 }
 
+.form-preview-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+    align-items: start;
+    gap: 22px;
+}
+
+.form-preview-layout > form,
+.form-card-preview-section {
+    min-width: 0;
+}
+
+.form-card-preview-section {
+    padding: 13px 14px 5px;
+    border: 1px solid rgba(177, 154, 107, 0.28);
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.form-card-preview-section > h3 {
+    margin: 0 0 13px;
+    color: #cbb98f;
+    font-family: var(--display);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.form-card-preview-section .game-card-visual {
+    width: 100%;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -996,5 +1029,11 @@ h1 {
 
     .card-table .card-type {
         font-size: 0.59rem;
+    }
+}
+
+@media (max-width: 980px) {
+    .form-preview-layout {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

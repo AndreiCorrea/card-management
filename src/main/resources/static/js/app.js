@@ -19,6 +19,7 @@ const cardDetailStatus = document.querySelector("#card-detail-status");
 const cardDetailError = document.querySelector("#card-detail-error");
 const cardDetailFields = document.querySelector("#card-detail-fields");
 const cardPreview = document.querySelector("#card-preview");
+const formCardPreview = document.querySelector("#form-card-preview");
 const cardVisualTemplate = document.querySelector("#card-visual-template");
 const deleteCardButton = document.querySelector("#delete-card-button");
 const deleteConfirmationPanel = document.querySelector("#delete-confirmation-panel");
@@ -44,6 +45,7 @@ showCreateFormButton.addEventListener("click", () => {
     resetFormMode();
     formReturnButton = showCreateFormButton;
     createPanel.hidden = false;
+    renderFormCardPreview();
     showCreateFormButton.setAttribute("aria-expanded", "true");
     createForm.elements.name.focus();
 });
@@ -56,6 +58,8 @@ closeCreateFormButton.addEventListener("click", () => {
 
 createForm.addEventListener("submit", submitCreateForm);
 createForm.addEventListener("keydown", handleFormKeyboardNavigation);
+createForm.addEventListener("input", renderFormCardPreview);
+createForm.addEventListener("change", renderFormCardPreview);
 imageFileInput.addEventListener("change", updateSelectedImageName);
 viewCardButton.addEventListener("click", loadSelectedCard);
 editCardButton.addEventListener("click", loadSelectedCardForEdit);
@@ -333,6 +337,7 @@ function prepareEditForm(card) {
     createPanel.hidden = false;
     clearCreateErrors();
     cardDetailPanel.hidden = true;
+    renderFormCardPreview();
     createPanel.scrollIntoView({ behavior: "smooth", block: "start" });
     form.name.focus();
 }
@@ -440,6 +445,35 @@ function renderCardTemplate(root, card) {
     traitsElement.textContent = traits.join(" · ");
     traitsElement.hidden = traits.length === 0;
     root.hidden = false;
+}
+
+function renderFormCardPreview() {
+    const form = createForm.elements;
+    const previewCard = {
+        name: form.name.value || null,
+        description: form.description.value,
+        type: form.type.value || null,
+        cost: previewNumber(form.cost.value),
+        attack: previewNumber(form.attack.value),
+        defense: previewNumber(form.defense.value),
+        piercing: previewNumber(form.piercing.value),
+        durability: previewNumber(form.durability.value),
+        twoHanded: form.twoHanded.checked,
+        magicDamage: previewNumber(form.magicDamage.value),
+        magicResistance: previewNumber(form.magicResistance.value),
+        shieldType: form.shieldType.value || null,
+        parryBonus: previewNumber(form.parryBonus.value)
+    };
+    renderCardTemplate(formCardPreview, previewCard);
+}
+
+function previewNumber(value) {
+    if (value.trim() === "") {
+        return null;
+    }
+
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
 }
 
 function optionalDisplayValue(value) {
