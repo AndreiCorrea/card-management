@@ -19,6 +19,7 @@ const cardDetailStatus = document.querySelector("#card-detail-status");
 const cardDetailError = document.querySelector("#card-detail-error");
 const cardDetailFields = document.querySelector("#card-detail-fields");
 const cardPreview = document.querySelector("#card-preview");
+const cardVisualTemplate = document.querySelector("#card-visual-template");
 const deleteCardButton = document.querySelector("#delete-card-button");
 const deleteConfirmationPanel = document.querySelector("#delete-confirmation-panel");
 const deleteConfirmationName = document.querySelector("#delete-confirmation-name");
@@ -374,7 +375,7 @@ async function loadSelectedCard() {
 }
 
 function renderCardDetails(card) {
-    renderCardPreview(card);
+    renderCardTemplate(cardPreview, card);
     const values = {
         "detail-id": card.id,
         "detail-name": card.name,
@@ -399,14 +400,22 @@ function renderCardDetails(card) {
     cardDetailFields.hidden = false;
 }
 
-function renderCardPreview(card) {
-    document.querySelector("#preview-name").textContent = card.name ?? "Unnamed Card";
-    document.querySelector("#preview-cost").textContent = card.cost === null || card.cost === undefined ? "—" : String(card.cost);
-    document.querySelector("#preview-type").textContent = String(card.type ?? "Unknown type").replaceAll("_", " ");
-    document.querySelector("#preview-description").textContent = card.description ?? "";
+function renderCardTemplate(root, card) {
+    const fragment = cardVisualTemplate.content.cloneNode(true);
+    root.replaceChildren(fragment);
 
-    const attributes = document.querySelector("#preview-attributes");
-    attributes.replaceChildren();
+    const name = root.querySelector(".game-card-visual__name");
+    const cost = root.querySelector(".game-card-visual__cost");
+    const type = root.querySelector(".game-card-visual__type");
+    const description = root.querySelector(".game-card-visual__description");
+    const attributes = root.querySelector(".game-card-visual__attributes");
+    const traitsElement = root.querySelector(".game-card-visual__traits");
+
+    name.textContent = card.name ?? "Unnamed Card";
+    cost.textContent = card.cost === null || card.cost === undefined ? "—" : String(card.cost);
+    type.textContent = String(card.type ?? "Unknown type").replaceAll("_", " ");
+    description.textContent = card.description ?? "";
+
     const values = [
         ["Attack", card.attack], ["Defense", card.defense], ["Piercing", card.piercing],
         ["Durability", card.durability], ["Magic Damage", card.magicDamage],
@@ -423,15 +432,14 @@ function renderCardPreview(card) {
         attributes.append(item);
     }
 
-    const shield = document.querySelector("#preview-shield");
     const traits = [];
     if (card.twoHanded) traits.push("Two-handed");
     if (card.shieldType !== null && card.shieldType !== undefined) {
         traits.push(`Shield: ${String(card.shieldType).replaceAll("_", " ")}`);
     }
-    shield.textContent = traits.join(" · ");
-    shield.hidden = traits.length === 0;
-    cardPreview.hidden = false;
+    traitsElement.textContent = traits.join(" · ");
+    traitsElement.hidden = traits.length === 0;
+    root.hidden = false;
 }
 
 function optionalDisplayValue(value) {
