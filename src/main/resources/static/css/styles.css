@@ -824,29 +824,50 @@ h1 {
 
 .game-card-visual__attributes {
     display: flex;
-    margin: 12px 0 0;
+    margin: 16px 0 0;
     flex-wrap: wrap;
-    gap: 7px;
+    align-items: stretch;
+    gap: 9px;
 }
 
 .game-card-visual__attributes > div {
-    min-width: 74px;
-    padding: 5px 8px;
-    border: 1px solid rgba(177, 154, 107, 0.3);
-    background: rgba(0, 0, 0, 0.18);
+    display: flex;
+    position: relative;
+    min-width: 0;
+    min-height: 64px;
+    max-width: 152px;
+    padding: 9px 11px 8px;
+    flex: 1 1 104px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    border: 1px solid rgba(177, 154, 107, 0.48);
+    background:
+        linear-gradient(110deg, rgba(177, 154, 107, 0.07), transparent 38%),
+        linear-gradient(155deg, #292a27, #171917 72%);
+    box-shadow: inset 0 1px rgba(230, 222, 206, 0.07), inset 0 -2px rgba(0, 0, 0, 0.34);
 }
 
 .game-card-visual__attributes dt {
-    color: #b8aa88;
+    min-width: 0;
+    color: #d0b980;
     font-family: var(--technical);
-    font-size: 0.56rem;
+    font-size: 0.73rem;
+    letter-spacing: 0.055em;
+    line-height: 1.25;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
 }
 
 .game-card-visual__attributes dd {
-    margin: 2px 0 0;
-    color: #eee5d4;
+    margin: 0;
+    color: #f0e8d8;
     font-family: var(--technical);
-    font-size: 0.9rem;
+    font-size: 1.14rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
 }
 
 .game-card-visual__traits {
