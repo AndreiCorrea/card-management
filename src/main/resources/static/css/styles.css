@@ -814,42 +814,64 @@ h1 {
 .game-card-visual__header {
     display: flex;
     min-width: 0;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    border-bottom: 1px solid var(--rule);
+    gap: 10px;
+    padding-bottom: 10px;
+}
+
+.game-card-visual__identity {
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
 .game-card-visual__name {
     min-width: 0;
-    margin: 0 0 7px;
+    margin: 0;
     color: #e3d5b8;
     font-family: var(--display);
     font-size: 1.28rem;
     font-weight: 500;
     line-height: 1.2;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 .game-card-visual__cost {
     display: grid;
-    width: 38px;
-    min-width: 38px;
-    height: 38px;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
     place-items: center;
-    border: 1px solid #947c51;
+    flex: 0 0 42px;
+    border: 1px solid #b19a6b;
     border-radius: 50%;
-    color: #e4d3a9;
+    background:
+        linear-gradient(145deg, rgba(177, 154, 107, 0.13), transparent 48%),
+        linear-gradient(155deg, #2d2e2a, #111413);
+    box-shadow:
+        inset 0 0 0 3px rgba(12, 14, 13, 0.9),
+        inset 0 0 0 4px rgba(177, 154, 107, 0.4),
+        inset 0 1px rgba(232, 220, 190, 0.2);
+    color: #f0e4c8;
     font-family: var(--technical);
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
 }
 
 .game-card-visual__type {
-    margin: 7px 0;
-    color: #b19a6b;
+    margin: 5px 0 0;
+    padding-top: 5px;
+    border-top: 1px solid rgba(177, 154, 107, 0.28);
+    color: #c0a56e;
     font-family: var(--technical);
     font-size: 0.67rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.09em;
+    line-height: 1.25;
     text-transform: uppercase;
+    overflow-wrap: break-word;
+    word-break: normal;
 }
 
 .game-card-visual__description {
@@ -1086,6 +1108,18 @@ h1 {
 
     .game-card-visual__name {
         font-size: 1.05rem;
+    }
+
+    .game-card-visual__cost {
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
+
+    .game-card-visual__type {
+        font-size: 0.62rem;
+        letter-spacing: 0.07em;
     }
 
     .card-table .card-type {
